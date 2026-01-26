@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(php artisan make:migration:*)",
+      "Bash(find:*)",
+      "Read(//Users/nelson/Projects/Opscale/dynamic-resources/src/**)",
+      "Read(//Users/nelson/Projects/Opscale/nova-service-desk/vendor/opscale-co/nova-dynamic-resources/src/Models/**)",
+      "Read(//Users/nelson/Projects/Opscale/dynamic-resources/**)",
+      "Bash(npm run prod:*)",
+      "Bash(npm install)",
+      "Bash(npm install:*)",
+      "Read(//Users/nelson/Projects/Opscale/nova-service-desk/vendor/opscale-co/nova-dynamic-resources/src/Nova/**)",
+      "Read(//Users/nelson/Projects/Opscale/nova-service-desk/vendor/opscale-co/nova-catalogs/src/Nova/**)",
+      "Bash(php artisan config:clear:*)",
+      "Bash(php artisan:*)",
+      "Bash(php vendor/bin/testbench package:test:*)",
+      "Bash(php -r \"echo function_exists(''_'') ? ''exists'' : ''does not exist'';\")",
+      "WebSearch",
+      "WebFetch(domain:nova.laravel.com)",
+      "Bash(php -l:*)",
+      "Bash(php:*)",
+      "Bash(npm run fix:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

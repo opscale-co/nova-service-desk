@@ -1,70 +1,74 @@
 <?php
 
-namespace :namespace_vendor\:namespace_tool_name;
+namespace Opscale\NovaServiceDesk;
 
-use Laravel\Nova\Events\ServingNova;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\ServiceProvider;
-use :namespace_vendor\:namespace_tool_name\Http\Middleware\Authorize;
+use Laravel\Nova\Http\Middleware\Authenticate;
 use Laravel\Nova\Nova;
+use Opscale\NovaPackageTools\NovaPackage;
+use Opscale\NovaPackageTools\NovaPackageServiceProvider;
+use Opscale\NovaServiceDesk\Http\Middleware\Authorize;
+use Opscale\NovaServiceDesk\Nova\Account;
+use Opscale\NovaServiceDesk\Nova\Category;
+use Opscale\NovaServiceDesk\Nova\Insight;
+use Opscale\NovaServiceDesk\Nova\Request;
+use Opscale\NovaServiceDesk\Nova\Resolution;
+use Opscale\NovaServiceDesk\Nova\SLAPolicy;
+use Opscale\NovaServiceDesk\Nova\Subcategory;
+use Opscale\NovaServiceDesk\Nova\Task;
+use Opscale\NovaServiceDesk\Nova\Template;
+use Spatie\LaravelPackageTools\Commands\InstallCommand;
+use Spatie\LaravelPackageTools\Package;
 
-class ToolServiceProvider extends ServiceProvider
+class ToolServiceProvider extends NovaPackageServiceProvider
 {
-    public function boot()
+    /**
+     * @phpstan-ignore solid.ocp.conditionalOverride
+     */
+    public function configurePackage(Package $package): void
     {
-        $this->loadRoutes();
-        /*$this->loadConfigs();
-
-        if ($this->app->runningInConsole()) {
-            $this->loadCommands();
-            $this->loadMigrations();
-        }
-            
-        Nova::serving(function (ServingNova $event) {
-            $this->loadResources();
-        });*/
+        /** @var NovaPackage $package */
+        $package
+            ->name('nova-service-desk')
+            ->hasConfigFile()
+            ->discoversMigrations()
+            ->runsMigrations()
+            ->hasResources([
+                Account::class,
+                Category::class,
+                Insight::class,
+                SLAPolicy::class,
+                Subcategory::class,
+                Resolution::class,
+                Request::class,
+                Task::class,
+                Template::class,
+            ])
+            ->hasTranslations()
+            ->hasInstallCommand(function (InstallCommand $installCommand): void {
+                $installCommand
+                    ->publishConfigFile()
+                    ->askToStarRepoOnGitHub('opscale-co/nova-service-desk');
+            });
     }
 
-    public function register()
+    public function packageBooted(): void
     {
-        //
+        parent::packageBooted();
+        $this->registerRoutes();
     }
 
-    /*protected function loadResources()
+    protected function registerRoutes()
     {
-        Nova::resources([]);
-    }
-
-    protected function loadRoutes()
-    {
-        if ($this->app->routesAreCached()) {
+        if (optional($this->app)->routesAreCached()) {
             return;
         }
 
+        Nova::router(['nova', Authenticate::class, Authorize::class], '/nova-service-desk')
+            ->group(__DIR__ . '/../routes/inertia.php');
+
         Route::middleware(['nova', Authorize::class])
-                ->prefix('nova-vendor/:vendor/:package_name')
-                ->group(__DIR__.'/../routes/api.php');
+            ->prefix('nova-vendor/opscale-co/nova-service-desk')
+            ->group(__DIR__ . '/../routes/api.php');
     }
-                
-    protected function loadConfigs()
-    {
-        $filename = ':package_name.php';
-        $this->publishes([
-            __DIR__."/../config/$filename" => config_path($filename),
-        ]);
-    }
-
-    protected function loadCommands()
-    {
-        $this->commands([]);
-    }
-
-    protected function loadMigrations()
-    {
-        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
-
-        $this->publishesMigrations([
-            __DIR__.'/../database/migrations' => database_path('migrations'),
-        ]);
-    }*/
 }

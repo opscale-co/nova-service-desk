@@ -1,0 +1,29 @@
+laravel: '@testbench'
+
+providers:
+  - Laravel\Nova\NovaCoreServiceProvider
+  - Laravel\Nova\NovaServiceProvider
+  - Workbench\App\Providers\WorkbenchServiceProvider
+  - Workbench\App\Providers\NovaServiceProvider
+  - Opscale\NovaServiceDesk\ToolServiceProvider
+
+seeders:
+  - Workbench\Database\Seeders\DatabaseSeeder
+
+workbench:
+  start: /nova
+  build:
+    - package:discover
+    - asset-publish
+    - create-sqlite-db
+    - db:wipe
+    - migrate:refresh
+    - nova-service-desk:install --no-interaction
+  assets:
+    - nova-assets
+  sync: []
+
+purge:
+  directories:
+    - lang/*
+    - public/vendor/*
