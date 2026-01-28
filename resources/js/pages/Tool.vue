@@ -1,8 +1,8 @@
 <template>
   <div>
-    <Head :title="__('Tareas')" />
+    <Head :title="__('Tasks')" />
 
-    <Heading class="mb-6">{{ __('Tareas') }}</Heading>
+    <Heading class="mb-6">{{ __('Tasks') }}</Heading>
 
     <Card class="p-0">
       <LoadingView :loading="loading">
@@ -76,7 +76,7 @@ export default {
           dueDate: task.due_date,
         }))
       } catch (_error) {
-        Nova.$emit('error', this.__('Error al cargar las tareas'))
+        Nova.$emit('error', this.__('Error loading tasks'))
       } finally {
         this.loading = false
       }
@@ -91,7 +91,7 @@ export default {
           status: newStatus,
         })
 
-        Nova.$emit('success', this.__('Estado de la tarea actualizado'))
+        Nova.$emit('success', this.__('Task status updated'))
 
         // Update local task status
         const task = this.tasks.find(t => t.id === item.id)
@@ -99,7 +99,7 @@ export default {
           task.status = newStatus
         }
       } catch (_error) {
-        Nova.$emit('error', this.__('Error al actualizar el estado de la tarea'))
+        Nova.$emit('error', this.__('Error updating task status'))
         // Revert the change by refetching
         this.fetchTasks()
       }
