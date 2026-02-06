@@ -7,7 +7,7 @@
         </span>
         <button
           :class="['kanban-priority', `priority-${priorityClass}`]"
-          :title="`${__('Prioridad')}: ${task.priority}`"
+          :title="`${__('Priority')}: ${task.priority}`"
         >
           <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
             <path d="M10 3.5L13 9h-2v7.5L8 11h2V3.5z"/>
@@ -32,7 +32,7 @@
         :href="`/resources/tasks/${task.id}`"
         class="kanban-card-link"
       >
-        {{ __('Ver Detalles') }}
+        {{ __('View Details') }}
       </a>
     </div>
   </div>

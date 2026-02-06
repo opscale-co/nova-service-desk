@@ -8,7 +8,7 @@
       >
         <div class="kanban-column-header">
           <h3 class="kanban-column-title">{{ column.title }}</h3>
-          <span class="kanban-column-count">{{ column.items.length }} {{ __('tareas') }}</span>
+          <span class="kanban-column-count">{{ column.items.length }} {{ __('tasks') }}</span>
         </div>
         <div
           class="kanban-column-body"
@@ -27,7 +27,7 @@
             <KanbanCard :task="item" :status-slug="item.statusSlug" />
           </div>
           <div v-if="column.items.length === 0" class="kanban-empty-state">
-            {{ __('Sin tareas') }}
+            {{ __('No tasks') }}
           </div>
         </div>
       </div>
