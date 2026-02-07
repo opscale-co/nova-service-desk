@@ -63,36 +63,30 @@ class ServiceDeskSeeder extends Seeder
 
         // 3. Create Subcategories
         Subcategory::create([
-            'catalog_id' => $category->id,
+            'category_id' => $category->id,
             'name' => 'General Inquiry',
             'key' => 'TEC-001',
             'description' => 'General technical inquiries',
-            'data' => [
-                'impact' => SLAPriority::Medium->value,
-                'urgency' => SLAPriority::Medium->value,
-            ],
+            'impact' => SLAPriority::Medium->value,
+            'urgency' => SLAPriority::Medium->value,
         ]);
 
         Subcategory::create([
-            'catalog_id' => $category->id,
+            'category_id' => $category->id,
             'name' => 'System Outage',
             'key' => 'TEC-002',
             'description' => 'System outages and critical failures',
-            'data' => [
-                'impact' => SLAPriority::High->value,
-                'urgency' => SLAPriority::High->value,
-            ],
+            'impact' => SLAPriority::High->value,
+            'urgency' => SLAPriority::High->value,
         ]);
 
         Subcategory::create([
-            'catalog_id' => $category->id,
+            'category_id' => $category->id,
             'name' => 'Feature Request',
             'key' => 'TEC-003',
             'description' => 'New feature requests and enhancements',
-            'data' => [
-                'impact' => SLAPriority::Low->value,
-                'urgency' => SLAPriority::Low->value,
-            ],
+            'impact' => SLAPriority::Low->value,
+            'urgency' => SLAPriority::Low->value,
         ]);
 
         // 4. Create SLA Policies for each priority

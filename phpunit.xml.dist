@@ -10,7 +10,7 @@
          processIsolation="false"
          stopOnFailure="false">
     <testsuites>
-        <testsuite name="NovaCatalogs Test Suite">
+        <testsuite name="NovaServiceDesk Test Suite">
             <directory>tests</directory>
         </testsuite>
     </testsuites>

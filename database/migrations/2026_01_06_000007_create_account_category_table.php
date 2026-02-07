@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('service_desk_account_category', function (Blueprint $table) {
             $table->foreignUlid('account_id')->constrained('service_desk_accounts')->cascadeOnDelete();
-            $table->foreignUlid('category_id')->constrained('catalogs')->cascadeOnDelete();
+            $table->foreignUlid('category_id')->constrained('service_desk_categories')->cascadeOnDelete();
             $table->primary(['account_id', 'category_id']);
             $table->timestamps();
         });

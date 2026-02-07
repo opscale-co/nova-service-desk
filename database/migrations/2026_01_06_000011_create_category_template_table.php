@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('service_desk_category_template', function (Blueprint $table) {
             $table->ulid('id')->primary();
-            $table->foreignUlid('category_id')->constrained('catalogs')->cascadeOnDelete();
+            $table->foreignUlid('category_id')->constrained('service_desk_categories')->cascadeOnDelete();
             $table->foreignUlid('template_id')->constrained('dynamic_resources_templates')->cascadeOnDelete();
             $table->timestamps();
 

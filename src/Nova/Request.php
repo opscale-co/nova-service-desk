@@ -121,7 +121,7 @@ class Request extends Resource
                     $categoryId = $formData->get('category_id');
 
                     if ($categoryId) {
-                        $field->options(Subcategory::where('catalog_id', $categoryId)->pluck('name', 'id'));
+                        $field->options(Subcategory::where('category_id', $categoryId)->pluck('name', 'id'));
                     } else {
                         $field->options([]);
                     }

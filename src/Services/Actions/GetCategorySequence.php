@@ -57,8 +57,9 @@ class GetCategorySequence extends Action
             ];
         }
 
-        $count = $template->categories()->count();
-        $correlative = str_pad($count + 1, 2, '0', STR_PAD_LEFT);
+        $lastCategory = $template->categories()->withoutGlobalScopes()->orderByDesc('key')->first();
+        $lastNumber = $lastCategory ? (int) substr($lastCategory->key, strrpos($lastCategory->key, '-') + 1) : 0;
+        $correlative = str_pad($lastNumber + 1, 2, '0', STR_PAD_LEFT);
         $sequence = $identifier . '-' . $correlative;
 
         return [

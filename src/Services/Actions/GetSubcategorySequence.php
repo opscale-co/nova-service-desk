@@ -29,7 +29,7 @@ class GetSubcategorySequence extends Action
                 'name' => 'category_id',
                 'description' => 'The ID of the category',
                 'type' => 'string',
-                'rules' => ['required', 'string', 'exists:catalogs,id'],
+                'rules' => ['required', 'string', 'exists:service_desk_categories,id'],
             ],
         ];
     }
@@ -57,8 +57,9 @@ class GetSubcategorySequence extends Action
             ];
         }
 
-        $count = $category->subcategories()->count();
-        $correlative = str_pad($count + 1, 2, '0', STR_PAD_LEFT);
+        $lastSubcategory = $category->subcategories()->withoutGlobalScopes()->orderByDesc('key')->first();
+        $lastNumber = $lastSubcategory ? (int) substr($lastSubcategory->key, strrpos($lastSubcategory->key, '-') + 1) : 0;
+        $correlative = str_pad($lastNumber + 1, 2, '0', STR_PAD_LEFT);
         $sequence = $categoryKey . '-' . $correlative;
 
         return [

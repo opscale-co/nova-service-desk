@@ -19,7 +19,7 @@ return new class extends Migration
 
             $table->foreign('subcategory_id')
                 ->references('id')
-                ->on('catalog_items')
+                ->on('service_desk_subcategories')
                 ->onDelete('cascade');
         });
     }

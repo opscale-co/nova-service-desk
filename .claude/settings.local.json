@@ -19,7 +19,8 @@
       "WebFetch(domain:nova.laravel.com)",
       "Bash(php -l:*)",
       "Bash(php:*)",
-      "Bash(npm run fix:*)"
+      "Bash(npm run fix:*)",
+      "Bash(grep:*)"
     ],
     "deny": [],
     "ask": []

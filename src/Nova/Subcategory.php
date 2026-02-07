@@ -5,14 +5,15 @@ namespace Opscale\NovaServiceDesk\Nova;
 use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Fields\Text;
+use Laravel\Nova\Fields\Textarea;
 use Laravel\Nova\Http\Requests\NovaRequest;
-use Opscale\NovaCatalogs\Nova\CatalogItem;
+use Laravel\Nova\Resource;
 use Opscale\NovaServiceDesk\Models\Category as CategoryModel;
 use Opscale\NovaServiceDesk\Models\Enums\SLAPriority;
 use Opscale\NovaServiceDesk\Models\Subcategory as Model;
 use Opscale\NovaServiceDesk\Services\Actions\GetSubcategorySequence;
 
-class Subcategory extends CatalogItem
+class Subcategory extends Resource
 {
     /**
      * The model the resource corresponds to.
@@ -20,6 +21,30 @@ class Subcategory extends CatalogItem
      * @var class-string<Model>
      */
     public static $model = Model::class;
+
+    /**
+     * The single value that should be used to represent the resource when being displayed.
+     *
+     * @var string
+     */
+    public static $title = 'name';
+
+    /**
+     * The columns that should be searched.
+     *
+     * @var array<string>
+     */
+    public static $search = [
+        'name',
+        'key',
+    ];
+
+    /**
+     * Indicates if the resource should be displayed in the sidebar.
+     *
+     * @var bool
+     */
+    public static $displayInNavigation = false;
 
     /**
      * Get the URI key for the resource.
@@ -58,52 +83,50 @@ class Subcategory extends CatalogItem
      */
     public function fields(NovaRequest $request)
     {
-        return array_values($this->defaultFields($request));
-    }
+        return [
+            BelongsTo::make(__('Category'), 'category', Category::class)
+                ->required()
+                ->sortable()
+                ->filterable(),
 
-    /**
-     * Get the default fields for the resource.
-     */
-    protected function defaultFields(NovaRequest $request): array
-    {
-        $fields = parent::defaultFields($request);
-        unset($fields['data']);
+            Text::make(__('Name'), 'name')
+                ->required()
+                ->rules($this->model()?->validationRules['name'])
+                ->sortable(),
 
-        $fields['catalog'] = BelongsTo::make(__('Category'), 'category', Category::class)
-            ->required()
-            ->sortable()
-            ->filterable();
-
-        $fields['key'] = Text::make(__('Key'), 'key')
-            ->immutable()
-            ->dependsOn(['category'], function (Text $field, NovaRequest $request, $formData) {
-                if (! empty($formData['category'])) {
-                    $result = GetSubcategorySequence::run(['category_id' => $formData['category']]);
-                    if ($result['success']) {
-                        $field->setValue($result['sequence']);
+            Text::make(__('Key'), 'key')
+                ->immutable()
+                ->dependsOn(['category'], function (Text $field, NovaRequest $request, $formData) {
+                    if (! empty($formData['category'])) {
+                        $result = GetSubcategorySequence::run(['category_id' => $formData['category']]);
+                        if ($result['success']) {
+                            $field->setValue($result['sequence']);
+                        }
                     }
-                }
-            });
+                }),
 
-        $fields['impact'] = Select::make(__('Impact'), 'impact')
-            ->options($this->getDefaultOptions('impact'))
-            ->dependsOn(['category'], function (Select $field, NovaRequest $request, $formData) {
-                $field->options($this->getCustomOptions($formData['category'], 'impact'));
-            })
-            ->rules(['required'])
-            ->displayUsingLabels()
-            ->hideFromIndex();
+            Textarea::make(__('Description'), 'description')
+                ->rules($this->model()?->validationRules['description'])
+                ->nullable(),
 
-        $fields['urgency'] = Select::make(__('Urgency'), 'urgency')
-            ->options($this->getDefaultOptions('urgency'))
-            ->dependsOn(['category'], function (Select $field, NovaRequest $request, $formData) {
-                $field->options($this->getCustomOptions($formData['category'], 'urgency'));
-            })
-            ->rules(['required'])
-            ->displayUsingLabels()
-            ->hideFromIndex();
+            Select::make(__('Impact'), 'impact')
+                ->options($this->getDefaultOptions('impact'))
+                ->dependsOn(['category'], function (Select $field, NovaRequest $request, $formData) {
+                    $field->options($this->getCustomOptions($formData['category'], 'impact'));
+                })
+                ->rules(['required'])
+                ->displayUsingLabels()
+                ->hideFromIndex(),
 
-        return $fields;
+            Select::make(__('Urgency'), 'urgency')
+                ->options($this->getDefaultOptions('urgency'))
+                ->dependsOn(['category'], function (Select $field, NovaRequest $request, $formData) {
+                    $field->options($this->getCustomOptions($formData['category'], 'urgency'));
+                })
+                ->rules(['required'])
+                ->displayUsingLabels()
+                ->hideFromIndex(),
+        ];
     }
 
     /**

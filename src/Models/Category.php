@@ -2,35 +2,51 @@
 
 namespace Opscale\NovaServiceDesk\Models;
 
+use Enigma\ValidatorTrait;
+use Illuminate\Database\Eloquent\Concerns\HasUlids;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Opscale\NovaCatalogs\Models\Catalog;
+use Opscale\NovaServiceDesk\Models\Repositories\CategoryRepository;
 
-class Category extends Catalog
+class Category extends Model
 {
+    use CategoryRepository, HasUlids, ValidatorTrait;
+
+    /**
+     * @var array<string, array<int, string>>
+     */
+    public array $validationRules = [
+        'description' => ['nullable', 'max:512'],
+        'name' => ['required', 'max:256'],
+        'key' => ['required', 'max:25'],
+        'impact_options' => ['nullable', 'string'],
+        'urgency_options' => ['nullable', 'string'],
+    ];
+
     /**
      * The table associated with the model.
      *
      * @var string
      */
-    protected $table = 'catalogs';
+    protected $table = 'service_desk_categories';
 
     /**
-     * The accessors to append to the model's array form.
+     * The attributes that are mass assignable.
      *
      * @var array<string>
      */
-    protected $appends = [
+    protected $fillable = [
+        'name',
+        'key',
+        'description',
         'impact_options',
         'urgency_options',
     ];
 
-    /**
-     * Alias for items relationship.
-     */
     public function subcategories(): HasMany
     {
-        return $this->hasMany(Subcategory::class, 'catalog_id');
+        return $this->hasMany(Subcategory::class);
     }
 
     public function accounts(): BelongsToMany
