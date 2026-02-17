@@ -2,6 +2,11 @@
 
 All notable changes to opscale-co/nova-api will be documented in this file.
 
+## <small>1.0.5 (2026-02-17)</small>
+
+* fix(request): this is just a bump ([ca39f78](https://github.com/opscale-co/nova-service-desk/commit/ca39f78))
+* ci(composer.lock): removed from git ignore ([d7aa050](https://github.com/opscale-co/nova-service-desk/commit/d7aa050))
+
 ## <small>1.0.4 (2026-02-17)</small>
 
 * fix(request): rendering template actions ([db15a99](https://github.com/opscale-co/nova-service-desk/commit/db15a99))
