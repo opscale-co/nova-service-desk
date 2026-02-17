@@ -115,12 +115,14 @@ class Request extends Resource
                 Select::make(__('Account'), 'account_id')
                     ->options(Account::with('customer')->get()->pluck('customer.name', 'id'))
                     ->displayUsingLabels()
-                    ->required(),
+                    ->required()
+                    ->hideFromIndex(),
 
                 Select::make(__('Category'), 'category_id')
                     ->options(Category::pluck('name', 'id'))
                     ->displayUsingLabels()
-                    ->required(),
+                    ->required()
+                    ->hideFromIndex(),
 
                 Select::make(__('Subcategory'), 'subcategory_id')
                     ->options(Subcategory::pluck('name', 'id'))
@@ -134,7 +136,8 @@ class Request extends Resource
                         }
                     })
                     ->displayUsingLabels()
-                    ->required(),
+                    ->required()
+                    ->hideFromIndex(),
             ];
         }
     }
