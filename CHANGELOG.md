@@ -2,6 +2,12 @@
 
 All notable changes to opscale-co/nova-api will be documented in this file.
 
+## <small>1.0.4 (2026-02-17)</small>
+
+* fix(request): rendering template actions ([db15a99](https://github.com/opscale-co/nova-service-desk/commit/db15a99))
+* Merge branch 'main' of https://github.com/opscale-co/nova-service-desk ([12dd752](https://github.com/opscale-co/nova-service-desk/commit/12dd752))
+* style(request): hidden categorization fields ([07cf227](https://github.com/opscale-co/nova-service-desk/commit/07cf227))
+
 ## <small>1.0.3 (2026-02-17)</small>
 
 * fix(auto-check): fixed wrong templating in auto-check workflow ([a9c967b](https://github.com/opscale-co/nova-service-desk/commit/a9c967b))
