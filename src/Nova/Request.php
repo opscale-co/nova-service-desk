@@ -2,6 +2,7 @@
 
 namespace Opscale\NovaServiceDesk\Nova;
 
+use Illuminate\Http\Request as HttpRequest;
 use Laravel\Nova\Fields\Boolean;
 use Laravel\Nova\Fields\DateTime;
 use Laravel\Nova\Fields\Hidden;
@@ -32,6 +33,22 @@ class Request extends Resource
     public static $model = Model::class;
 
     /**
+     * Determine if the current user can create new resources.
+     */
+    public static function authorizedToCreate(HttpRequest $request): bool
+    {
+        return isset(static::$template);
+    }
+
+    /**
+     * Determine if the current user can update the given resource.
+     */
+    public function authorizedToUpdate(HttpRequest $request): bool
+    {
+        return isset(static::$template);
+    }
+
+    /**
      * Get the fields displayed by the resource.
      *
      * @return array<mixed>
@@ -44,6 +61,7 @@ class Request extends Resource
             ...$this->renderTemplateFields(),
 
             DateTime::make(__('Created At'), 'created_at')
+                ->displayUsing(fn ($value) => $value?->diffForHumans())
                 ->sortable()
                 ->exceptOnForms(),
 
@@ -81,20 +99,9 @@ class Request extends Resource
      */
     protected function categorizationFields(NovaRequest $request): array
     {
-        $accountId = $request->get('account_id');
-        $categoryId = $request->get('category_id');
-        $subcategoryId = $request->get('subcategory_id');
-
-        // Fallback: parse from referer if not in request (Nova SPA doesn't forward query params)
-        if (! $accountId || ! $categoryId || ! $subcategoryId) {
-            $referer = $request->headers->get('referer');
-            if ($referer) {
-                parse_str(parse_url($referer, PHP_URL_QUERY) ?? '', $queryParams);
-                $accountId = $accountId ?? ($queryParams['account_id'] ?? null);
-                $categoryId = $categoryId ?? ($queryParams['category_id'] ?? null);
-                $subcategoryId = $subcategoryId ?? ($queryParams['subcategory_id'] ?? null);
-            }
-        }
+        $accountId = isset(static::$template) ? static::$template->getData('account_id') : null;
+        $categoryId = isset(static::$template) ? static::$template->getData('category_id') : null;
+        $subcategoryId = isset(static::$template) ? static::$template->getData('subcategory_id') : null;
 
         if ($accountId && $categoryId && $subcategoryId) {
             return [
@@ -102,32 +109,33 @@ class Request extends Resource
                 Hidden::make('category_id')->default($categoryId),
                 Hidden::make('subcategory_id')->default($subcategoryId),
             ];
+        } else {
+
+            return [
+                Select::make(__('Account'), 'account_id')
+                    ->options(Account::with('customer')->get()->pluck('customer.name', 'id'))
+                    ->displayUsingLabels()
+                    ->required(),
+
+                Select::make(__('Category'), 'category_id')
+                    ->options(Category::pluck('name', 'id'))
+                    ->displayUsingLabels()
+                    ->required(),
+
+                Select::make(__('Subcategory'), 'subcategory_id')
+                    ->options(Subcategory::pluck('name', 'id'))
+                    ->dependsOn(['category_id'], function (Select $field, NovaRequest $request, $formData) {
+                        $categoryId = $formData->get('category_id');
+
+                        if ($categoryId) {
+                            $field->options(Subcategory::where('category_id', $categoryId)->pluck('name', 'id'));
+                        } else {
+                            $field->options([]);
+                        }
+                    })
+                    ->displayUsingLabels()
+                    ->required(),
+            ];
         }
-
-        return [
-            Select::make(__('Account'), 'account_id')
-                ->options(Account::with('customer')->get()->pluck('customer.name', 'id'))
-                ->displayUsingLabels()
-                ->required(),
-
-            Select::make(__('Category'), 'category_id')
-                ->options(Category::pluck('name', 'id'))
-                ->displayUsingLabels()
-                ->required(),
-
-            Select::make(__('Subcategory'), 'subcategory_id')
-                ->options(Subcategory::pluck('name', 'id'))
-                ->dependsOn(['category_id'], function (Select $field, NovaRequest $request, $formData) {
-                    $categoryId = $formData->get('category_id');
-
-                    if ($categoryId) {
-                        $field->options(Subcategory::where('category_id', $categoryId)->pluck('name', 'id'));
-                    } else {
-                        $field->options([]);
-                    }
-                })
-                ->displayUsingLabels()
-                ->required(),
-        ];
     }
 }

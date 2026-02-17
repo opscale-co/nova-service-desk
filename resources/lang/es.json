@@ -1,6 +1,9 @@
 {
     "Service Desk": "Mesa de Servicio",
     "Task Board": "Tablero de Tareas",
+    "Operation": "Operación",
+    "Administration": "Administración",
+    "Configuration": "Configuración",
     "Task Types": "Tipos de Tarea",
     "Task Type": "Tipo de Tarea",
     "Categories": "Categorías",
@@ -111,6 +114,24 @@
     "Time-sensitive": "Sensible al tiempo",
     "Will require attention soon": "Requerirá atención pronto",
     "Can be planned": "Se puede planificar",
+
+    "Business": "Negocio",
+    "Technical": "Técnico",
+    "Legal": "Legal",
+    "Operational": "Operacional",
+    "Other": "Otro",
+
+    "Critical": "Crítico",
+    "High": "Alto",
+    "Medium": "Medio",
+    "Low": "Bajo",
+    "Planning": "Planificación",
+
+    "Active": "Activo",
+    "Inactive": "Inactivo",
+
+    "Web": "Web",
+    "Chat": "Chat",
 
     "Monday": "Lunes",
     "Tuesday": "Martes",

@@ -88,6 +88,7 @@ class Resolution extends Resource
                 ->sortable(),
 
             Date::make(__('Last Modified'), 'last_modified')
+                ->displayUsing(fn ($value) => $value?->diffForHumans())
                 ->exceptOnForms()
                 ->readonly()
                 ->sortable(),

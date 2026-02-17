@@ -76,7 +76,7 @@ class Insight extends Resource
                 ->required(),
 
             Select::make(__('Scope'), 'scope')
-                ->options(collect(InsightScope::cases())->mapWithKeys(fn ($case) => [$case->value => $case->value]))
+                ->options(collect(InsightScope::cases())->mapWithKeys(fn ($case) => [$case->value => __($case->value)]))
                 ->required()
                 ->sortable(),
 
@@ -96,6 +96,7 @@ class Insight extends Resource
                 ->sortable(),
 
             DateTime::make(__('Created At'), 'created_at')
+                ->displayUsing(fn ($value) => $value?->diffForHumans())
                 ->exceptOnForms()
                 ->sortable(),
         ];

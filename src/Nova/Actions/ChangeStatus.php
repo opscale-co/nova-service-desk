@@ -49,7 +49,7 @@ class ChangeStatus extends Action
     public function fields(NovaRequest $request)
     {
         $statuses = collect(TaskStatus::cases())->mapWithKeys(function ($status) {
-            return [$status->value => $status->value];
+            return [$status->value => __($status->value)];
         })->toArray();
 
         return [

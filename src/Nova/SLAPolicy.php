@@ -88,7 +88,7 @@ class SLAPolicy extends Resource
                 ->nullable(),
 
             Select::make(__('Priority'), 'priority')
-                ->options(collect(SLAPriority::cases())->mapWithKeys(fn ($case) => [$case->value => $case->value]))
+                ->options(collect(SLAPriority::cases())->mapWithKeys(fn ($case) => [$case->value => __($case->value)]))
                 ->required()
                 ->sortable()
                 ->filterable(),
@@ -120,7 +120,7 @@ class SLAPolicy extends Resource
                 ->hideFromIndex(),
 
             MultiSelect::make(__('Supported Channels'), 'supported_channels')
-                ->options(collect(ServiceChannel::cases())->mapWithKeys(fn ($case) => [$case->value => $case->value]))
+                ->options(collect(ServiceChannel::cases())->mapWithKeys(fn ($case) => [$case->value => __($case->value)]))
                 ->rules('required')
                 ->hideFromIndex(),
 

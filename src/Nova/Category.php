@@ -98,14 +98,14 @@ class Category extends Resource
                         ->nullable()
                         ->hideFromIndex()
                         ->displayUsing(fn ($value) => $value ?? __('Default'))
-                        ->help(__('Select a category to use for impact options.')),
+                        ->help(__('Select a catalog to use for impact options.')),
 
                     Select::make(__('Urgency Options'), 'urgency_options')
                         ->options($this->getCategoryOptions())
                         ->nullable()
                         ->hideFromIndex()
                         ->displayUsing(fn ($value) => $value ?? __('Default'))
-                        ->help(__('Select a category to use for urgency options.')),
+                        ->help(__('Select a catalog to use for urgency options.')),
                 ]),
 
                 Tab::make(__('Subcategories'), [

@@ -23,6 +23,9 @@ class Template extends BaseTemplate
         'name',
         'identifier',
         'description',
+        'account_id',
+        'category_id',
+        'subcategory_id',
     ];
 
     /**

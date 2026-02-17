@@ -57,8 +57,8 @@ class Template extends BaseTemplate
     public function fields(NovaRequest $request): array
     {
         return [
-            Tab::group('Template', [
-                Tab::make('Details', [
+            Tab::group(__('Template'), [
+                Tab::make(__('Details'), [
                     Hidden::make(__('Type'), 'type')
                         ->default(TemplateType::Inherited->value),
 

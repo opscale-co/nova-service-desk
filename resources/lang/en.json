@@ -1,6 +1,9 @@
 {
     "Service Desk": "Service Desk",
     "Task Board": "Task Board",
+    "Operation": "Operation",
+    "Administration": "Administration",
+    "Configuration": "Configuration",
     "Task Types": "Task Types",
     "Task Type": "Task Type",
     "Categories": "Categories",
@@ -111,6 +114,24 @@
     "Time-sensitive": "Time-sensitive",
     "Will require attention soon": "Will require attention soon",
     "Can be planned": "Can be planned",
+
+    "Business": "Business",
+    "Technical": "Technical",
+    "Legal": "Legal",
+    "Operational": "Operational",
+    "Other": "Other",
+
+    "Critical": "Critical",
+    "High": "High",
+    "Medium": "Medium",
+    "Low": "Low",
+    "Planning": "Planning",
+
+    "Active": "Active",
+    "Inactive": "Inactive",
+
+    "Web": "Web",
+    "Chat": "Chat",
 
     "Monday": "Monday",
     "Tuesday": "Tuesday",

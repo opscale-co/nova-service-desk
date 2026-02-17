@@ -185,6 +185,12 @@ class ServiceDeskSeeder extends Seeder
 
         // Link account to category
         $account->categories()->attach($category->id);
+
+        // 6. Predefine categorization for support tickets template
+        $template->account_id = $account->id;
+        $template->category_id = $category->id;
+        $template->subcategory_id = Subcategory::where('category_id', $category->id)->first()->id;
+        $template->save();
     }
 
     /**
