@@ -27,7 +27,7 @@ return [
     |
     | Register custom statuses resolvers for specific templates.
     | The key should be the template KEY and the value should be a class
-    | implementing the CustomStatusesResolver contract.
+    | implementing the StatusesResolver contract.
     |
     | Example:
     | 'INC' => \App\Services\IncidentStatusesResolver::class,
@@ -35,7 +35,7 @@ return [
     */
 
     'custom_statuses_resolvers' => [
-        // 'TEMPLATE_KEY' => \App\Services\CustomStatusesResolver::class,
+        // 'TEMPLATE_KEY' => \App\Services\StatusesResolver::class,
     ],
 
 ];

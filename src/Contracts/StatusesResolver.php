@@ -4,7 +4,7 @@ namespace Opscale\NovaServiceDesk\Contracts;
 
 use Opscale\NovaServiceDesk\Models\Task;
 
-interface CustomStatusesResolver
+interface StatusesResolver
 {
     /**
      * Get the custom statuses mapping.
