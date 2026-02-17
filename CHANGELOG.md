@@ -2,6 +2,16 @@
 
 All notable changes to opscale-co/nova-api will be documented in this file.
 
+## <small>1.0.2 (2026-02-07)</small>
+
+* Merge branch 'main' of https://github.com/opscale-co/nova-service-desk ([ba41525](https://github.com/opscale-co/nova-service-desk/commit/ba41525))
+* refactor(dependencies): removed nova-catalogs dependency ([ee7bb08](https://github.com/opscale-co/nova-service-desk/commit/ee7bb08))
+
+
+### BREAKING CHANGE
+
+* Migrations and model references changed
+
 ## <small>1.0.1 (2026-02-06)</small>
 
 * Merge branch 'main' into update-dependency ([e1d4d62](https://github.com/opscale-co/nova-service-desk/commit/e1d4d62))
