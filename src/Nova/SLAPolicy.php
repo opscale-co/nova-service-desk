@@ -11,6 +11,7 @@ use Laravel\Nova\Fields\Textarea;
 use Laravel\Nova\Http\Requests\NovaRequest;
 use Laravel\Nova\Resource;
 use Opscale\NovaServiceDesk\Models\Enums\ServiceChannel;
+use Opscale\NovaServiceDesk\Models\Enums\SLAPolicyStatus;
 use Opscale\NovaServiceDesk\Models\Enums\SLAPriority;
 use Opscale\NovaServiceDesk\Models\SLAPolicy as Model;
 use Opscale\NovaServiceDesk\Nova\Repeatables\TimeSlot;
@@ -95,9 +96,10 @@ class SLAPolicy extends Resource
 
             Badge::make(__('Status'), 'status')
                 ->map([
-                    'Active' => 'success',
-                    'Inactive' => 'danger',
+                    SLAPolicyStatus::Active->value => 'success',
+                    SLAPolicyStatus::Inactive->value => 'danger',
                 ])
+                ->labels(collect(SLAPolicyStatus::cases())->mapWithKeys(fn ($case) => [$case->value => __($case->value)])->all())
                 ->sortable()
                 ->filterable(),
 

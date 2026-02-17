@@ -151,5 +151,12 @@
     "4 days": "4 days",
     "8 days": "8 days",
     "16 days": "16 days",
-    "32 days": "32 days"
+    "32 days": "32 days",
+
+    "Assign Task": "Assign Task",
+    "Assigns a new task for a service desk request": "Assigns a new task for a service desk request",
+    "Task assigned successfully": "Task assigned successfully",
+    "Something went wrong while executing the action.": "Something went wrong while executing the action.",
+    "Tracking Code": "Tracking Code",
+    "Expires in": "Expires in"
 }

@@ -151,5 +151,12 @@
     "4 days": "4 días",
     "8 days": "8 días",
     "16 days": "16 días",
-    "32 days": "32 días"
+    "32 days": "32 días",
+
+    "Assign Task": "Asignar Tarea",
+    "Assigns a new task for a service desk request": "Asigna una nueva tarea para una solicitud de mesa de servicio",
+    "Task assigned successfully": "Tarea asignada exitosamente",
+    "Something went wrong while executing the action.": "Algo salió mal al ejecutar la acción.",
+    "Tracking Code": "Código de Seguimiento",
+    "Expires in": "Expira en"
 }

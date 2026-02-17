@@ -23,12 +23,12 @@ class AssignTask extends Action
 
     public function name(): string
     {
-        return 'Assign Task';
+        return __('Assign Task');
     }
 
     public function description(): string
     {
-        return 'Assigns a new task for a service desk request';
+        return __('Assigns a new task for a service desk request');
     }
 
     public function parameters(): array
@@ -121,7 +121,7 @@ class AssignTask extends Action
             $result = $this->handle($validatedData);
 
             if (empty($result) || ! $result['success']) {
-                return Action::danger($result['message'] ?? 'Something went wrong while executing the action.');
+                return Action::danger($result['message'] ?? __('Something went wrong while executing the action.'));
             }
 
             $task = $result['task'];

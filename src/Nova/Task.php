@@ -165,6 +165,7 @@ class Task extends Resource
 
             Badge::make(__('Status'), 'status')
                 ->map(self::statusOptions())
+                ->labels(collect(TaskStatus::cases())->mapWithKeys(fn ($case) => [$case->value => __($case->value)])->all())
                 ->sortable()
                 ->filterable(),
 
@@ -183,6 +184,7 @@ class Task extends Resource
                     SLAPriority::Low->value => 'success',
                     SLAPriority::Planning->value => 'success',
                 ])
+                ->labels(collect(SLAPriority::cases())->mapWithKeys(fn ($case) => [$case->value => __($case->value)])->all())
                 ->sortable()
                 ->filterable(),
 

@@ -24,7 +24,7 @@
           <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
           </svg>
-          {{ formattedDueDate }}
+          {{ __('Expires in') }} {{ humanDueDate }}
         </span>
       </div>
 
@@ -65,9 +65,19 @@ export default {
       return new Date(this.task.dueDate) < new Date()
     },
 
-    formattedDueDate() {
+    humanDueDate() {
       if (!this.task.dueDate) return ''
-      return new Date(this.task.dueDate).toLocaleDateString()
+      const now = new Date()
+      const due = new Date(this.task.dueDate)
+      const diffMs = due - now
+      const absDiffMs = Math.abs(diffMs)
+      const minutes = Math.floor(absDiffMs / 60000)
+      const hours = Math.floor(absDiffMs / 3600000)
+      const days = Math.floor(absDiffMs / 86400000)
+
+      if (days > 0) return `${days} ${this.__('days')}`
+      if (hours > 0) return `${hours}h`
+      return `${minutes}m`
     },
   },
 }

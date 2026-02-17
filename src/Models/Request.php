@@ -9,10 +9,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Laravel\Nova\Actions\Actionable;
 use Opscale\NovaDynamicResources\Models\Concerns\UsesTemplate;
+use Opscale\NovaServiceDesk\Models\Repositories\RequestRepository;
 
 class Request extends Model
 {
-    use Actionable, HasUlids, UsesTemplate, ValidatorTrait;
+    use Actionable, HasUlids, RequestRepository, UsesTemplate, ValidatorTrait;
 
     protected $table = 'service_desk_requests';
 
@@ -21,6 +22,7 @@ class Request extends Model
         'category_id',
         'subcategory_id',
         'assigned',
+        'tracking_code',
         'data',
     ];
 

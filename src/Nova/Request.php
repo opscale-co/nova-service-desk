@@ -7,6 +7,7 @@ use Laravel\Nova\Fields\Boolean;
 use Laravel\Nova\Fields\DateTime;
 use Laravel\Nova\Fields\Hidden;
 use Laravel\Nova\Fields\Select;
+use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Http\Requests\NovaRequest;
 use Laravel\Nova\Resource;
 use Opscale\NovaDynamicResources\Nova\Concerns\UsesTemplate;
@@ -33,6 +34,13 @@ class Request extends Resource
     public static $model = Model::class;
 
     /**
+     * The single value that should be used to represent the resource when being displayed.
+     *
+     * @var string
+     */
+    public static $title = 'tracking_code';
+
+    /**
      * Determine if the current user can create new resources.
      */
     public static function authorizedToCreate(HttpRequest $request): bool
@@ -56,6 +64,10 @@ class Request extends Resource
     public function fields(NovaRequest $request): array
     {
         return [
+            Text::make(__('Tracking Code'), 'tracking_code')
+                ->readonly()
+                ->exceptOnForms(),
+
             ...$this->categorizationFields($request),
 
             ...$this->renderTemplateFields(),
