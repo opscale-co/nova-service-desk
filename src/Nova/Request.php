@@ -111,7 +111,6 @@ class Request extends Resource
                 Hidden::make('subcategory_id')->default($subcategoryId),
             ];
         } else {
-
             return [
                 Select::make(__('Account'), 'account_id')
                     ->options(Account::with('customer')->get()->pluck('customer.name', 'id'))
