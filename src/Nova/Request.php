@@ -77,6 +77,7 @@ class Request extends Resource
     public function actions(NovaRequest $request): array
     {
         return [
+            ...$this->renderTemplateActions(),
             AssignTask::make(),
         ];
     }
