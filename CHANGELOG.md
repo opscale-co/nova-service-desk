@@ -2,6 +2,13 @@
 
 All notable changes to opscale-co/nova-api will be documented in this file.
 
+## <small>1.0.3 (2026-02-17)</small>
+
+* fix(auto-check): fixed wrong templating in auto-check workflow ([a9c967b](https://github.com/opscale-co/nova-service-desk/commit/a9c967b))
+* fix(statusesresolver): rename class for cosistency ([6103e1c](https://github.com/opscale-co/nova-service-desk/commit/6103e1c))
+* Merge branch 'main' of https://github.com/opscale-co/nova-service-desk ([bfe90df](https://github.com/opscale-co/nova-service-desk/commit/bfe90df))
+* refactor(request): updated dependencies loading for requests ([abaf90e](https://github.com/opscale-co/nova-service-desk/commit/abaf90e))
+
 ## <small>1.0.2 (2026-02-07)</small>
 
 * Merge branch 'main' of https://github.com/opscale-co/nova-service-desk ([ba41525](https://github.com/opscale-co/nova-service-desk/commit/ba41525))
