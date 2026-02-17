@@ -2,6 +2,11 @@
 
 All notable changes to opscale-co/nova-api will be documented in this file.
 
+## <small>1.0.6 (2026-02-17)</small>
+
+* Merge branch 'main' of https://github.com/opscale-co/nova-service-desk ([3c08017](https://github.com/opscale-co/nova-service-desk/commit/3c08017))
+* perf(request): added tracking code ([94f009c](https://github.com/opscale-co/nova-service-desk/commit/94f009c))
+
 ## <small>1.0.5 (2026-02-17)</small>
 
 * fix(request): this is just a bump ([ca39f78](https://github.com/opscale-co/nova-service-desk/commit/ca39f78))
