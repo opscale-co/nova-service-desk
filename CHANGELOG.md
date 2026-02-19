@@ -2,6 +2,10 @@
 
 All notable changes to opscale-co/nova-api will be documented in this file.
 
+## <small>1.0.7 (2026-02-19)</small>
+
+* fix(dependencies): solved request wrong index presentation ([be853e8](https://github.com/opscale-co/nova-service-desk/commit/be853e8))
+
 ## <small>1.0.6 (2026-02-17)</small>
 
 * Merge branch 'main' of https://github.com/opscale-co/nova-service-desk ([3c08017](https://github.com/opscale-co/nova-service-desk/commit/3c08017))
