@@ -2,7 +2,6 @@
 
 namespace Opscale\NovaServiceDesk\Nova\Metrics;
 
-use Illuminate\Support\Facades\DB;
 use Laravel\Nova\Http\Requests\NovaRequest;
 use Laravel\Nova\Metrics\Value;
 use Opscale\NovaServiceDesk\Models\Task;
@@ -17,8 +16,8 @@ class AverageTime extends Value
     public function calculate(NovaRequest $request)
     {
         $average = Task::whereNotNull('closed_at')
-            ->select(DB::raw('AVG(julianday(closed_at) - julianday(created_at)) as avg_days'))
-            ->value('avg_days');
+            ->get()
+            ->avg(fn ($task) => $task->closed_at->diffInDays($task->created_at));
 
         return $this->result($average ? round($average, 2) : 0)
             ->suffix(__('days'));
