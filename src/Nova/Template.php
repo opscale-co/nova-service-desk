@@ -71,9 +71,7 @@ class Template extends BaseTemplate
 
                     Text::make(__('Identifier'), 'identifier')
                         ->rules(['required', 'string', 'size:3', 'regex:/^[A-Z]{3}$/'])
-                        ->help(__('3 uppercase letters'))
-                        ->creationRules('unique:dynamic_resources_templates,identifier')
-                        ->updateRules('unique:dynamic_resources_templates,identifier,{{resourceId}}'),
+                        ->help(__('3 uppercase letters')),
 
                     Textarea::make(__('Description'), 'description')
                         ->rules(['nullable', 'string'])
