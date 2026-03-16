@@ -29,7 +29,7 @@
       </div>
 
       <a
-        :href="`/resources/tasks/${task.id}`"
+        :href="`${Nova.appConfig.base}/resources/tasks/${task.id}`"
         class="kanban-card-link"
       >
         {{ __('View Details') }}
