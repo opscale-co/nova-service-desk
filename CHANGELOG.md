@@ -2,6 +2,11 @@
 
 All notable changes to opscale-co/nova-api will be documented in this file.
 
+## <small>1.0.8 (2026-03-09)</small>
+
+* fix(averagemetric): solved SQLite specific query in metric ([011dabb](https://github.com/opscale-co/nova-service-desk/commit/011dabb))
+* fix(template): removed wrong validation ([eb75e9c](https://github.com/opscale-co/nova-service-desk/commit/eb75e9c))
+
 ## <small>1.0.7 (2026-02-19)</small>
 
 * fix(dependencies): solved request wrong index presentation ([be853e8](https://github.com/opscale-co/nova-service-desk/commit/be853e8))
