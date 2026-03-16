@@ -29,7 +29,7 @@
       </div>
 
       <a
-        :href="`${Nova.appConfig.base}/resources/tasks/${task.id}`"
+        :href="taskUrl"
         class="kanban-card-link"
       >
         {{ __('View Details') }}
@@ -54,6 +54,12 @@ export default {
   },
 
   computed: {
+    taskUrl() {
+      const nova = window.Nova
+      const base = (nova && nova.appConfig && nova.appConfig.base) || '/nova'
+      return `${base}/resources/tasks/${this.task.id}`
+    },
+
     priorityClass() {
       if (this.task.priority >= 8) return 'high'
       if (this.task.priority >= 5) return 'medium'
