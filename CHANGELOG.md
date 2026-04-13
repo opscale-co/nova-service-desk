@@ -2,6 +2,13 @@
 
 All notable changes to opscale-co/nova-api will be documented in this file.
 
+## <small>1.0.9 (2026-03-16)</small>
+
+* Merge branch 'main' of https://github.com/opscale-co/nova-service-desk ([8569807](https://github.com/opscale-co/nova-service-desk/commit/8569807))
+* fix(gettasksequence): fixed bug when generating unique sequence ([0955e60](https://github.com/opscale-co/nova-service-desk/commit/0955e60))
+* fix(kanbancard): fixed bad root route ([a0db4f3](https://github.com/opscale-co/nova-service-desk/commit/a0db4f3))
+* fix(kanbancard): fixed base route definition ([14dd904](https://github.com/opscale-co/nova-service-desk/commit/14dd904))
+
 ## <small>1.0.8 (2026-03-09)</small>
 
 * fix(averagemetric): solved SQLite specific query in metric ([011dabb](https://github.com/opscale-co/nova-service-desk/commit/011dabb))
