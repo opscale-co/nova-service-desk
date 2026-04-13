@@ -2,6 +2,16 @@
 
 All notable changes to opscale-co/nova-api will be documented in this file.
 
+## 1.1.0 (2026-04-13)
+
+* Merge branch 'main' of https://github.com/opscale-co/nova-service-desk ([be7541b](https://github.com/opscale-co/nova-service-desk/commit/be7541b))
+* feat(workflow): added workflows ([eba0536](https://github.com/opscale-co/nova-service-desk/commit/eba0536))
+
+
+### BREAKING CHANGE
+
+* Added new migrations and the ways how a task can be moved between stages
+
 ## <small>1.0.9 (2026-03-16)</small>
 
 * Merge branch 'main' of https://github.com/opscale-co/nova-service-desk ([8569807](https://github.com/opscale-co/nova-service-desk/commit/8569807))
