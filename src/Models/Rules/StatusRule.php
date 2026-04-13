@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Opscale\NovaServiceDesk\Models\Rules;
 
 use BackedEnum;
@@ -40,17 +42,7 @@ class StatusRule implements ValidationRule
             ? $value
             : $this->enumClass::from($value);
 
-        $templateKey = strtoupper(substr($this->model->key, 0, 3));
-        $resolvers = config('nova-service-desk.custom_statuses_resolvers', []);
-
-        if (isset($resolvers[$templateKey])) {
-            $resolver = app($resolvers[$templateKey]);
-            $canTransition = $resolver->canTransitionTo($this->model, $newStatus->value);
-        } else {
-            $canTransition = $currentStatus->canTransitionTo($newStatus);
-        }
-
-        if (! $canTransition) {
+        if (! $currentStatus->canTransitionTo($newStatus)) {
             $fail("Cannot transition from {$currentStatus->value} to {$newStatus->value}.");
         }
     }

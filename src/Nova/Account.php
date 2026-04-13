@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Opscale\NovaServiceDesk\Nova;
 
 use Illuminate\Support\Collection;
@@ -139,22 +141,39 @@ class Account extends Resource
     }
 
     /**
-     * Get resources whose models implement the RequiresService contract.
+     * Get the Nova resources whose models can be the customer of an Account.
+     *
+     * Resolves the {@see RequiresService} contract from the container and
+     * matches its `servedEntities()` against registered Nova resources.
      *
      * @return array<class-string<\Laravel\Nova\Resource<\Illuminate\Database\Eloquent\Model>>>
      */
     private function getServiceableResources(): array
     {
+        if (! app()->bound(RequiresService::class)) {
+            return [];
+        }
+
+        /** @var RequiresService $resolver */
+        $resolver = app(RequiresService::class);
+
+        $modelClasses = (new Collection($resolver->servedEntities()))
+            ->map(fn ($entity) => $entity::class)
+            ->unique()
+            ->all();
+
+        if ($modelClasses === []) {
+            return [];
+        }
+
         /** @var array<class-string<\Laravel\Nova\Resource<\Illuminate\Database\Eloquent\Model>>> $resources */
         $resources = (new Collection(Nova::$resources))
-            ->filter(function (string $resource): bool {
+            ->filter(function (string $resource) use ($modelClasses): bool {
                 /** @var class-string<\Laravel\Nova\Resource> $resource */
-                /** @var class-string<\Illuminate\Database\Eloquent\Model> $model */
-                $model = $resource::$model;
-
-                return is_subclass_of($model, RequiresService::class);
+                return in_array($resource::$model, $modelClasses, true);
             })
-            ->toArray();
+            ->values()
+            ->all();
 
         return $resources;
     }

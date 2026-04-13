@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Opscale\NovaServiceDesk\Nova;
 
 use Laravel\Nova\Fields\Badge;
@@ -13,10 +15,10 @@ use Laravel\Nova\Resource;
 use Opscale\NovaServiceDesk\Models\Enums\SLAPriority;
 use Opscale\NovaServiceDesk\Models\Enums\TaskStatus;
 use Opscale\NovaServiceDesk\Models\Task as Model;
-use Opscale\NovaServiceDesk\Nova\Actions\ChangeStatus;
 use Opscale\NovaServiceDesk\Nova\Metrics\AverageTime;
 use Opscale\NovaServiceDesk\Nova\Metrics\TaskActivity;
 use Opscale\NovaServiceDesk\Nova\Metrics\TasksByStatus;
+use Opscale\NovaServiceDesk\Services\Actions\ChangeStatus;
 
 class Task extends Resource
 {
@@ -96,26 +98,23 @@ class Task extends Resource
     }
 
     /**
-     * Get the status alias options for the task.
+     * Get the workflow stage badge options for the task.
      */
-    public function statusAliasOptions(): array
+    public function workflowStageOptions(): array
     {
-        $templateKey = strtoupper(substr($this->resource->key ?? '', 0, 3));
-        $resolvers = config('nova-service-desk.status_alias_resolvers', []);
-
-        if (isset($resolvers[$templateKey])) {
-            $resolver = app($resolvers[$templateKey]);
-            $options = $resolver->getOptions();
-            $statusOptions = self::statusOptions();
-
-            return collect($options)
-                ->flatMap(fn ($aliases, $status) => collect($aliases)
-                    ->mapWithKeys(fn ($alias) => [$alias => $statusOptions[$status] ?? 'info'])
-                )
-                ->toArray();
+        if (! $this->resource->workflow_id) {
+            return [];
         }
 
-        return [];
+        $workflow = $this->resource->workflow;
+
+        if (! $workflow) {
+            return [];
+        }
+
+        return $workflow->stages->mapWithKeys(function ($stage) {
+            return [$stage->name => $stage->color ?? 'info'];
+        })->toArray();
     }
 
     /**
@@ -166,13 +165,13 @@ class Task extends Resource
             Badge::make(__('Status'), 'status')
                 ->map(self::statusOptions())
                 ->labels(collect(TaskStatus::cases())->mapWithKeys(fn ($case) => [$case->value => __($case->value)])->all())
+                ->canSee(fn () => $this->resource->workflow_id === null)
                 ->sortable()
                 ->filterable(),
 
-            Badge::make(__('Alias'), 'status_alias')
-                ->map($this->statusAliasOptions())
-                ->hideFromIndex()
-                ->canSee(fn () => ! empty($this->statusAliasOptions()))
+            Badge::make(__('Stage'), 'status_alias')
+                ->map($this->workflowStageOptions())
+                ->canSee(fn () => $this->resource->workflow_id !== null)
                 ->sortable()
                 ->filterable(),
 
@@ -261,7 +260,8 @@ class Task extends Resource
     public function actions(NovaRequest $request)
     {
         return [
-            ChangeStatus::make(),
+            ChangeStatus::make()
+                ->showOnDetailToolbar(),
         ];
     }
 }

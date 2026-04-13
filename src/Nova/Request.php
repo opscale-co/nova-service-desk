@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Opscale\NovaServiceDesk\Nova;
 
 use Illuminate\Http\Request as HttpRequest;
@@ -90,7 +92,8 @@ class Request extends Resource
     {
         return [
             ...$this->renderTemplateActions(),
-            AssignTask::make(),
+            AssignTask::make()
+                ->showOnDetailToolbar(),
         ];
     }
 

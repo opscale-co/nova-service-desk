@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Opscale\NovaServiceDesk\Nova;
 
 use Laravel\Nova\Fields\HasMany;
@@ -80,7 +82,7 @@ class Category extends Resource
                 Tab::make(__('Details'), [
                     Text::make(__('Name'), 'name')
                         ->required()
-                        ->rules($this->model()?->validationRules['name'])
+                        ->rules(Model::$validationRules['name'])
                         ->sortable(),
 
                     Text::make(__('Identifier'), 'key')
@@ -91,7 +93,7 @@ class Category extends Resource
 
                     Textarea::make(__('Description'), 'description')
                         ->alwaysShow()
-                        ->rules($this->model()?->validationRules['description']),
+                        ->rules(Model::$validationRules['description']),
 
                     Select::make(__('Impact Options'), 'impact_options')
                         ->options($this->getCategoryOptions())

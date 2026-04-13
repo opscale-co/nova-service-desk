@@ -1,22 +1,24 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Opscale\NovaServiceDesk\Models;
 
-use Enigma\ValidatorTrait;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Opscale\NovaServiceDesk\Models\Repositories\CategoryRepository;
+use Opscale\Validations\Validatable;
 
 class Category extends Model
 {
-    use CategoryRepository, HasUlids, ValidatorTrait;
+    use CategoryRepository, HasUlids, Validatable;
 
     /**
      * @var array<string, array<int, string>>
      */
-    public array $validationRules = [
+    public static array $validationRules = [
         'description' => ['nullable', 'max:512'],
         'name' => ['required', 'max:256'],
         'key' => ['required', 'max:25'],

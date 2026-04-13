@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Opscale\NovaServiceDesk\Models\Repositories;
 
 use Illuminate\Support\Facades\Cache;
@@ -8,7 +10,7 @@ trait CategoryRepository
 {
     public static function fromKey(string $key): ?static
     {
-        $cacheKey = 'opscale.service-desk.categories.' . $key;
+        $cacheKey = 'opscale.service-desk.categories.'.$key;
 
         return Cache::rememberForever($cacheKey, function () use ($key) {
             return static::with('subcategories')->whereHas('subcategories', function ($query) {

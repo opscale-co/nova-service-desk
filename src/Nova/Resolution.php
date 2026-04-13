@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Opscale\NovaServiceDesk\Nova;
 
 use Laravel\Nova\Fields\BelongsTo;

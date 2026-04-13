@@ -5,9 +5,13 @@
         v-for="column in columns"
         :key="column.id"
         class="kanban-column"
+        :class="`column-color-${column.color}`"
       >
         <div class="kanban-column-header">
-          <h3 class="kanban-column-title">{{ column.title }}</h3>
+          <h3 class="kanban-column-title">
+            <span class="kanban-column-icon">{{ column.icon }}</span>
+            {{ column.title }}
+          </h3>
           <span class="kanban-column-count">{{ column.items.length }} {{ __('tasks') }}</span>
         </div>
         <div
@@ -24,7 +28,7 @@
             @dragstart="onDragStart($event, item)"
             @dragend="onDragEnd"
           >
-            <KanbanCard :task="item" :status-slug="item.statusSlug" />
+            <KanbanCard :task="item" :status-slug="column.slug" />
           </div>
           <div v-if="column.items.length === 0" class="kanban-empty-state">
             {{ __('No tasks') }}
@@ -38,6 +42,15 @@
 <script>
 import KanbanCard from './KanbanCard.vue'
 
+const STAGE_ICONS = {
+  Open: '📋',
+  'In Progress': '🔄',
+  Blocked: '🚫',
+  Resolved: '✅',
+  Closed: '🔒',
+  Cancelled: '❌',
+}
+
 export default {
   name: 'KanbanBoard',
 
@@ -50,13 +63,17 @@ export default {
       type: Array,
       required: true,
     },
-    statuses: {
+    stages: {
       type: Array,
       required: true,
     },
+    isDefaultWorkflow: {
+      type: Boolean,
+      default: false,
+    },
   },
 
-  emits: ['status-changed'],
+  emits: ['transition'],
 
   data() {
     return {
@@ -66,20 +83,42 @@ export default {
 
   computed: {
     columns() {
-      return this.statuses.map(status => ({
-        id: status.value,
-        title: `${status.icon} ${status.label || this.__(status.value)}`,
-        items: this.tasks
-          .filter(task => task.status === status.value)
-          .map(task => ({
-            ...task,
-            statusSlug: status.slug,
-          })),
-      }))
+      return this.stages.map(stage => {
+        const items = this.tasks.filter(task => this.taskBelongsToStage(task, stage))
+
+        return {
+          id: stage.id,
+          title: stage.name,
+          color: stage.color || 'info',
+          icon: STAGE_ICONS[stage.maps_to_status] || STAGE_ICONS[stage.name] || '📌',
+          slug: this.slugify(stage.name),
+          items,
+        }
+      })
     },
   },
 
   methods: {
+    /**
+     * Determine if a task belongs to a given column.
+     * - Default workflow: match by master `status` value (stage.id is the TaskStatus value)
+     * - Custom workflow: match by `workflow_stage_id` (stage.id is the WorkflowStage ULID)
+     */
+    taskBelongsToStage(task, stage) {
+      if (this.isDefaultWorkflow) {
+        return task.status === stage.id
+      }
+
+      return task.workflow_stage_id === stage.id
+    },
+
+    slugify(value) {
+      return String(value || '')
+        .toLowerCase()
+        .replace(/\s+/g, '-')
+        .replace(/[^a-z0-9-]/g, '')
+    },
+
     onDragStart(event, item) {
       this.draggedItem = item
       event.dataTransfer.effectAllowed = 'move'
@@ -112,17 +151,26 @@ export default {
     onDrop(event, column) {
       event.preventDefault()
 
-      // Remove drag-over class
       if (event.target.classList.contains('kanban-column-body')) {
         event.target.classList.remove('drag-over')
       }
 
-      if (this.draggedItem && this.draggedItem.status !== column.id) {
-        this.$emit('status-changed', {
-          item: this.draggedItem,
-          column: { id: column.id },
-        })
+      if (!this.draggedItem) {
+        return
       }
+
+      const currentColumnId = this.isDefaultWorkflow
+        ? this.draggedItem.status
+        : this.draggedItem.workflow_stage_id
+
+      if (currentColumnId === column.id) {
+        return
+      }
+
+      this.$emit('transition', {
+        task: this.draggedItem,
+        stage: { id: column.id, name: column.title },
+      })
     },
   },
 }
@@ -148,10 +196,27 @@ export default {
   padding: 0.75rem;
   display: flex;
   flex-direction: column;
+  border-top: 4px solid #9ca3af;
 }
 
 .dark .kanban-column {
   background: #1f2937;
+}
+
+.column-color-info {
+  border-top-color: #3b82f6;
+}
+
+.column-color-warning {
+  border-top-color: #f59e0b;
+}
+
+.column-color-danger {
+  border-top-color: #dc2626;
+}
+
+.column-color-success {
+  border-top-color: #10b981;
 }
 
 .kanban-column-header {
@@ -171,10 +236,17 @@ export default {
   font-size: 0.875rem;
   font-weight: 600;
   color: #1f2937;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
 }
 
 .dark .kanban-column-title {
   color: #f3f4f6;
+}
+
+.kanban-column-icon {
+  font-size: 1rem;
 }
 
 .kanban-column-count {

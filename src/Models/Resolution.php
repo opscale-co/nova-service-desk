@@ -1,16 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Opscale\NovaServiceDesk\Models;
 
-use Enigma\ValidatorTrait;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Opscale\NovaServiceDesk\Models\Repositories\ResolutionRepository;
+use Opscale\Validations\Validatable;
 
 class Resolution extends Model
 {
-    use HasUlids, ResolutionRepository, ValidatorTrait;
+    use HasUlids, ResolutionRepository, Validatable;
 
     protected $table = 'service_desk_resolutions';
 

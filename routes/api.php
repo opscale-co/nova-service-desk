@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Support\Facades\Route;
 use Opscale\NovaServiceDesk\Http\Controllers\ToolController;
 
@@ -14,6 +16,6 @@ use Opscale\NovaServiceDesk\Http\Controllers\ToolController;
 |
 */
 
+Route::get('workflows', [ToolController::class, 'getWorkflows']);
 Route::get('tasks', [ToolController::class, 'index']);
-Route::get('statuses', [ToolController::class, 'getStatuses']);
-Route::put('tasks/{id}/status', [ToolController::class, 'updateStatus']);
+Route::put('tasks/{id}/transition', [ToolController::class, 'transition']);

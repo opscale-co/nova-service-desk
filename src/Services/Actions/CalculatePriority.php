@@ -1,8 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Opscale\NovaServiceDesk\Services\Actions;
 
 use Opscale\Actions\Action;
+use Opscale\NovaServiceDesk\Contracts\WorkflowResolver;
 use Opscale\NovaServiceDesk\Models\Enums\SLAPriority;
 use Opscale\NovaServiceDesk\Models\Subcategory;
 use Opscale\NovaServiceDesk\Models\Task;
@@ -56,22 +59,35 @@ class CalculatePriority extends Action
         }
 
         $priority = $this->getPriority($impact, $urgency);
-
-        $templateKey = strtoupper(substr($task->key, 0, 3));
-        $resolvers = config('nova-service-desk.priority_score_resolvers', []);
-
-        if (isset($resolvers[$templateKey])) {
-            $resolver = app($resolvers[$templateKey]);
-            $score = $resolver->getScore($task);
-        } else {
-            $score = $this->getScore($priority);
-        }
+        $score = $this->resolveScore($task, $priority);
 
         return [
             'success' => true,
             'priority' => $priority->value,
             'score' => $score,
         ];
+    }
+
+    /**
+     * Resolve the priority score: first ask the workflow resolver (if any)
+     * for a custom score, otherwise fall back to the default mapping.
+     */
+    protected function resolveScore(Task $task, SLAPriority $priority): float
+    {
+        $templateKey = strtoupper(substr($task->key ?? '', 0, 3));
+        $resolvers = config('nova-service-desk.workflow_resolvers', []);
+
+        if (isset($resolvers[$templateKey])) {
+            /** @var WorkflowResolver $resolver */
+            $resolver = app($resolvers[$templateKey]);
+            $custom = $resolver->priorityScore($task);
+
+            if ($custom !== null) {
+                return $custom;
+            }
+        }
+
+        return $this->getScore($priority);
     }
 
     /**

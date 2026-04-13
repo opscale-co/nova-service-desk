@@ -1,18 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Opscale\NovaServiceDesk\Models;
 
-use Enigma\ValidatorTrait;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Opscale\NovaServiceDesk\Models\Enums\SLAPolicyStatus;
 use Opscale\NovaServiceDesk\Models\Enums\SLAPriority;
+use Opscale\Validations\Validatable;
 
 class SLAPolicy extends Model
 {
-    use HasUlids, SoftDeletes, ValidatorTrait;
+    use HasUlids, SoftDeletes, Validatable;
 
     protected $table = 'service_desk_sla_policies';
 

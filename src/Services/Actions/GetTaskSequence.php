@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Opscale\NovaServiceDesk\Services\Actions;
 
 use Opscale\Actions\Action;
@@ -62,8 +64,8 @@ class GetTaskSequence extends Action
             ->orderByDesc('key')
             ->first();
         $lastNumber = $lastTask ? (int) substr($lastTask->key, strrpos($lastTask->key, '-') + 1) : 0;
-        $correlative = str_pad($lastNumber + 1, 6, '0', STR_PAD_LEFT);
-        $sequence = $identifier . '-' . $correlative;
+        $correlative = str_pad((string) ($lastNumber + 1), 6, '0', STR_PAD_LEFT);
+        $sequence = $identifier.'-'.$correlative;
 
         return [
             'success' => true,

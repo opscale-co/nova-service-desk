@@ -18,7 +18,8 @@ export default [
     prettierConfig,
     {
         languageOptions: {
-            ecmaVersion: 2018,
+            ecmaVersion: 2022,
+            sourceType: 'module',
             globals: {
                 Nova: true,
                 ...globals.browser,

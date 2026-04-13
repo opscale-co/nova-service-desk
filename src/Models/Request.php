@@ -1,8 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Opscale\NovaServiceDesk\Models;
 
-use Enigma\ValidatorTrait;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,10 +11,11 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Laravel\Nova\Actions\Actionable;
 use Opscale\NovaDynamicResources\Models\Concerns\UsesTemplate;
 use Opscale\NovaServiceDesk\Models\Repositories\RequestRepository;
+use Opscale\Validations\Validatable;
 
 class Request extends Model
 {
-    use Actionable, HasUlids, RequestRepository, UsesTemplate, ValidatorTrait;
+    use Actionable, HasUlids, RequestRepository, UsesTemplate, Validatable;
 
     protected $table = 'service_desk_requests';
 

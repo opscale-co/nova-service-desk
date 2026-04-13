@@ -1,13 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Workbench\App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Enigma\ValidatorTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Opscale\NovaServiceDesk\Contracts\RequiresService;
+use Opscale\Validations\Validatable;
 use Workbench\Database\Factories\UserFactory;
 
 /**
@@ -20,15 +21,15 @@ use Workbench\Database\Factories\UserFactory;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  */
-class User extends Authenticatable implements RequiresService
+class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable, ValidatorTrait;
+    use HasFactory, Notifiable, Validatable;
 
     /**
      * @var array<string, list<string>>
      */
-    public array $validationRules = [
+    public static array $validationRules = [
         'name' => ['required', 'string', 'max:255'],
         'email' => ['required', 'string', 'email', 'max:254', 'unique:users'],
         'password' => ['required', 'string', 'min:8'],
@@ -71,13 +72,5 @@ class User extends Authenticatable implements RequiresService
     final protected static function newFactory(): \Workbench\Database\Factories\UserFactory
     {
         return UserFactory::new();
-    }
-
-    /**
-     * Get the users serving this entity.
-     */
-    public function servingUsers(): array
-    {
-        return [$this];
     }
 }

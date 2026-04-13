@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Opscale\NovaServiceDesk\Nova;
 
 use Laravel\Nova\Fields\BelongsTo;
@@ -91,7 +93,7 @@ class Subcategory extends Resource
 
             Text::make(__('Name'), 'name')
                 ->required()
-                ->rules($this->model()?->validationRules['name'])
+                ->rules(Model::$validationRules['name'])
                 ->sortable(),
 
             Text::make(__('Key'), 'key')
@@ -106,7 +108,7 @@ class Subcategory extends Resource
                 }),
 
             Textarea::make(__('Description'), 'description')
-                ->rules($this->model()?->validationRules['description'])
+                ->rules(Model::$validationRules['description'])
                 ->nullable(),
 
             Select::make(__('Impact'), 'impact')

@@ -1,9 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Opscale\NovaServiceDesk\Models\Repositories;
 
 use Illuminate\Database\Eloquent\Builder;
+use Opscale\NovaServiceDesk\Contracts\WorkflowResolver;
 use Opscale\NovaServiceDesk\Models\Enums\TaskStatus;
+use Opscale\NovaServiceDesk\Models\WorkflowStage;
 
 trait TaskRepository
 {
@@ -13,7 +17,32 @@ trait TaskRepository
     public static function bootTaskRepository(): void
     {
         static::updating(function ($model) {
-            if ($model->isDirty('status')) {
+            // Workflow-driven transition: validate via WorkflowResolver
+            if ($model->isDirty('workflow_stage_id') && $model->workflow_stage_id !== null) {
+                $targetStage = WorkflowStage::find($model->workflow_stage_id);
+
+                if (! $targetStage) {
+                    abort(422, __('Invalid workflow stage.'));
+                }
+
+                $templateKey = strtoupper(substr($model->key ?? '', 0, 3));
+                $resolver = static::resolveWorkflowResolver($templateKey);
+
+                if ($resolver) {
+                    if (! $resolver->canTransitionTo($model, $targetStage)) {
+                        abort(422, $resolver->message());
+                    }
+                }
+
+                // Sync master status and alias from stage
+                $model->status = $targetStage->maps_to_status;
+                $model->status_alias = $targetStage->name;
+
+                return;
+            }
+
+            // Legacy path: validate TaskStatus enum transitions
+            if ($model->isDirty('status') && $model->workflow_stage_id === null) {
                 $original = $model->getOriginal('status');
                 $currentStatus = $original instanceof TaskStatus ? $original : TaskStatus::from($original);
 
@@ -28,6 +57,20 @@ trait TaskRepository
                 }
             }
         });
+    }
+
+    /**
+     * Resolve a WorkflowResolver for the given template key.
+     */
+    protected static function resolveWorkflowResolver(string $templateKey): ?WorkflowResolver
+    {
+        $resolvers = config('nova-service-desk.workflow_resolvers', []);
+
+        if (isset($resolvers[$templateKey])) {
+            return app($resolvers[$templateKey]);
+        }
+
+        return null;
     }
 
     /**

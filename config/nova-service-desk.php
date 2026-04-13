@@ -1,41 +1,30 @@
 <?php
 
+declare(strict_types=1);
+
 return [
 
     /*
     |--------------------------------------------------------------------------
-    | Priority Score Resolvers
+    | Workflow Resolvers
     |--------------------------------------------------------------------------
     |
-    | Register custom priority score resolvers for specific templates.
-    | The key should be the template KEY and the value should be a class
-    | implementing the PriorityScoreResolver contract.
+    | Register workflow resolvers per template. The key is the template KEY
+    | (the first three uppercase characters of a task `key`) and the value
+    | must be a class implementing the WorkflowResolver contract.
+    |
+    | A WorkflowResolver decides:
+    |   - Which stage transitions are allowed (allowedTransitions/canTransitionTo)
+    |   - The error message for denied transitions (message)
+    |   - An optional custom priority score for tasks (priorityScore)
     |
     | Example:
-    | 'INC' => \App\Services\IncidentPriorityResolver::class,
+    | 'TEC' => \App\Resolvers\TechnicalSupportWorkflowResolver::class,
     |
     */
 
-    'priority_score_resolvers' => [
-        // 'TEMPLATE_KEY' => \App\Services\CustomPriorityResolver::class,
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Custom Statuses Resolvers
-    |--------------------------------------------------------------------------
-    |
-    | Register custom statuses resolvers for specific templates.
-    | The key should be the template KEY and the value should be a class
-    | implementing the StatusesResolver contract.
-    |
-    | Example:
-    | 'INC' => \App\Services\IncidentStatusesResolver::class,
-    |
-    */
-
-    'custom_statuses_resolvers' => [
-        // 'TEMPLATE_KEY' => \App\Services\StatusesResolver::class,
+    'workflow_resolvers' => [
+        // 'TEMPLATE_KEY' => \App\Resolvers\WorkflowResolver::class,
     ],
 
 ];

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Opscale\NovaServiceDesk\Nova\Metrics;
 
 use Laravel\Nova\Http\Requests\NovaRequest;

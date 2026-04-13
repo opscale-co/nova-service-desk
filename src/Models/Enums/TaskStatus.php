@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Opscale\NovaServiceDesk\Models\Enums;
 
 use Opscale\NovaServiceDesk\Contracts\CanTransition;
@@ -7,8 +9,8 @@ use Opscale\NovaServiceDesk\Contracts\CanTransition;
 enum TaskStatus: string implements CanTransition
 {
     case Open = 'Open';
-    case InProgress = 'In Progress';
     case Blocked = 'Blocked';
+    case InProgress = 'In Progress';
     case Resolved = 'Resolved';
     case Closed = 'Closed';
     case Cancelled = 'Cancelled';

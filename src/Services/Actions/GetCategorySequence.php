@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Opscale\NovaServiceDesk\Services\Actions;
 
 use Opscale\Actions\Action;
@@ -59,8 +61,8 @@ class GetCategorySequence extends Action
 
         $lastCategory = $template->categories()->withoutGlobalScopes()->orderByDesc('key')->first();
         $lastNumber = $lastCategory ? (int) substr($lastCategory->key, strrpos($lastCategory->key, '-') + 1) : 0;
-        $correlative = str_pad($lastNumber + 1, 2, '0', STR_PAD_LEFT);
-        $sequence = $identifier . '-' . $correlative;
+        $correlative = str_pad((string) ($lastNumber + 1), 2, '0', STR_PAD_LEFT);
+        $sequence = $identifier.'-'.$correlative;
 
         return [
             'success' => true,

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Workbench\App\Providers;
 
 use Illuminate\Support\Facades\Gate;
@@ -16,8 +18,6 @@ class NovaServiceProvider extends NovaApplicationServiceProvider
     public function boot(): void
     {
         parent::boot();
-
-        //
     }
 
     /**

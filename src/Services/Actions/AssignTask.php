@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Opscale\NovaServiceDesk\Services\Actions;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
@@ -10,9 +13,11 @@ use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Fields\Textarea;
 use Opscale\Actions\Action;
+use Opscale\NovaServiceDesk\Contracts\ProvidesService;
 use Opscale\NovaServiceDesk\Models\Enums\TaskStatus;
 use Opscale\NovaServiceDesk\Models\Request;
 use Opscale\NovaServiceDesk\Models\Task;
+use Opscale\NovaServiceDesk\Models\Workflow;
 
 class AssignTask extends Action
 {
@@ -50,13 +55,19 @@ class AssignTask extends Action
                 'name' => 'description',
                 'description' => 'The description of the task',
                 'type' => 'string',
-                'rules' => ['nullable', 'string'],
+                'rules' => ['required', 'string'],
             ],
             [
                 'name' => 'assignee_id',
                 'description' => 'The ID of the user to assign the task to',
                 'type' => 'string',
                 'rules' => ['required', 'string'],
+            ],
+            [
+                'name' => 'workflow_id',
+                'description' => 'The workflow to assign to the task',
+                'type' => 'string',
+                'rules' => ['nullable', 'string'],
             ],
         ];
     }
@@ -73,7 +84,7 @@ class AssignTask extends Action
         $task->fill([
             'request_id' => $request->id,
             'title' => $validatedData['title'],
-            'description' => $validatedData['description'] ?? null,
+            'description' => $validatedData['description'],
             'status' => TaskStatus::Open,
             'assignee_id' => $validatedData['assignee_id'],
             'assigner_id' => Auth::id(),
@@ -97,6 +108,29 @@ class AssignTask extends Action
         ]);
 
         $task->due_date = $dueDateResult['due_date'];
+
+        // Resolve workflow: use explicit selection, or fall back to template key resolution
+        $workflow = null;
+
+        if (! empty($validatedData['workflow_id'])) {
+            $workflow = Workflow::find($validatedData['workflow_id']);
+        }
+
+        if (! $workflow) {
+            $templateKey = strtoupper(substr($task->key, 0, 3));
+            $workflow = Workflow::resolveForTemplate($templateKey);
+        }
+
+        if ($workflow) {
+            $initialStage = $workflow->initialStage();
+            $task->workflow_id = $workflow->id;
+
+            if ($initialStage) {
+                $task->workflow_stage_id = $initialStage->id;
+                $task->status = $initialStage->maps_to_status;
+                $task->status_alias = $initialStage->name;
+            }
+        }
 
         $task->save();
 
@@ -130,7 +164,7 @@ class AssignTask extends Action
         } catch (ValidationException $e) {
             $errors = [];
             foreach ($e->errors() as $field => $messages) {
-                $errors[] = "{$field}: " . implode(', ', $messages);
+                $errors[] = "{$field}: ".implode(', ', $messages);
             }
 
             return Action::danger(implode("\n", $errors));
@@ -141,20 +175,49 @@ class AssignTask extends Action
 
     public function getActionFields(): array
     {
-        $userModel = config('auth.providers.users.model');
-        $users = $userModel::all()->pluck('name', 'id')->toArray();
+        $users = $this->serviceProviders();
+        $workflows = Workflow::all()->pluck('name', 'id')->toArray();
 
         return [
             Text::make(__('Title'), 'title')
                 ->rules('required', 'string', 'max:255'),
 
             Textarea::make(__('Description'), 'description')
-                ->rules('nullable', 'string'),
+                ->rules('required', 'string'),
 
             Select::make(__('Assignee'), 'assignee_id')
                 ->options($users)
                 ->searchable()
                 ->nullable(),
+
+            Select::make(__('Workflow'), 'workflow_id')
+                ->options($workflows)
+                ->searchable()
+                ->nullable()
+                ->help(__('Optional. If not selected, the workflow will be resolved automatically.')),
         ];
+    }
+
+    /**
+     * Resolve the {@see ProvidesService} implementation from the container
+     * and build the assignee list from `servingAgents()`. Returns an empty
+     * list when no implementation is bound, so the action stays usable
+     * without breaking the form.
+     *
+     * @return array<int|string, string>
+     */
+    protected function serviceProviders(): array
+    {
+        if (! app()->bound(ProvidesService::class)) {
+            return [];
+        }
+
+        /** @var ProvidesService $resolver */
+        $resolver = app(ProvidesService::class);
+
+        return collect($resolver->servingAgents())
+            ->unique(fn (Model $agent) => $agent->getKey())
+            ->mapWithKeys(fn (Model $agent) => [$agent->getKey() => (string) ($agent->name ?? $agent->getKey())])
+            ->toArray();
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Opscale\NovaServiceDesk\Services\Actions;
 
 use Carbon\Carbon;
@@ -141,8 +143,8 @@ class CalculateDueDate extends Action
                 continue;
             }
 
-            $serviceStart = Carbon::parse($dateString . ' ' . $daySchedule['start_time'], $timezone);
-            $serviceEnd = Carbon::parse($dateString . ' ' . $daySchedule['end_time'], $timezone);
+            $serviceStart = Carbon::parse($dateString.' '.$daySchedule['start_time'], $timezone);
+            $serviceEnd = Carbon::parse($dateString.' '.$daySchedule['end_time'], $timezone);
 
             // If current time is before service start, move to service start
             if ($current->lt($serviceStart)) {

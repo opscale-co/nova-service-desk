@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Workbench\Database\Seeders;
 
 use Illuminate\Database\Seeder;
@@ -10,10 +12,14 @@ use Opscale\NovaServiceDesk\Models\Category;
 use Opscale\NovaServiceDesk\Models\Enums\ServiceChannel;
 use Opscale\NovaServiceDesk\Models\Enums\SLAPolicyStatus;
 use Opscale\NovaServiceDesk\Models\Enums\SLAPriority;
+use Opscale\NovaServiceDesk\Models\Enums\TaskStatus;
 use Opscale\NovaServiceDesk\Models\SLAPolicy;
 use Opscale\NovaServiceDesk\Models\Subcategory;
 use Opscale\NovaServiceDesk\Models\Template;
+use Opscale\NovaServiceDesk\Models\Workflow;
+use Opscale\NovaServiceDesk\Models\WorkflowStage;
 use Opscale\NovaServiceDesk\Nova\Request;
+use Workbench\App\Models\Department;
 use Workbench\App\Models\User;
 
 class ServiceDeskSeeder extends Seeder
@@ -170,12 +176,19 @@ class ServiceDeskSeeder extends Seeder
             $createdPolicies[] = SLAPolicy::create($policyData);
         }
 
-        // 5. Create Account
+        // 5. Create Department (the entity that requires service) and the
+        //    Account that wraps it as the morphable customer.
         $user = User::first();
 
+        $department = Department::create([
+            'name' => 'IT Operations',
+            'description' => 'Owns infrastructure and end-user support.',
+            'manager_id' => $user->id,
+        ]);
+
         $account = Account::create([
-            'customer_type' => User::class,
-            'customer_id' => $user->id,
+            'customer_type' => Department::class,
+            'customer_id' => $department->id,
             'profile' => 'Default Account',
             'metadata' => [],
         ]);
@@ -191,6 +204,30 @@ class ServiceDeskSeeder extends Seeder
         $template->category_id = $category->id;
         $template->subcategory_id = Subcategory::where('category_id', $category->id)->first()->id;
         $template->save();
+
+        // 7. Create Workflow for Technical Support tickets
+        $tecWorkflow = Workflow::create([
+            'name' => 'Technical Support',
+            'slug' => 'technical-support',
+            'key' => 'TEC',
+            'description' => 'Standard workflow for technical support tickets',
+        ]);
+
+        $tecStages = [
+            ['name' => 'New', 'description' => 'Ticket received, pending triage', 'color' => 'warning', 'maps_to_status' => TaskStatus::Open->value],
+            ['name' => 'Triaged', 'description' => 'Assessed and prioritized, ready for assignment', 'color' => 'info', 'maps_to_status' => TaskStatus::Open->value],
+            ['name' => 'Waiting on Customer', 'description' => 'Pending response or information from the customer', 'color' => 'warning', 'maps_to_status' => TaskStatus::Blocked->value],
+            ['name' => 'In Progress', 'description' => 'Actively being worked on by an agent', 'color' => 'info', 'maps_to_status' => TaskStatus::InProgress->value],
+            ['name' => 'Escalated', 'description' => 'Escalated to a specialist or higher tier', 'color' => 'danger', 'maps_to_status' => TaskStatus::InProgress->value],
+            ['name' => 'Resolved', 'description' => 'Solution provided, awaiting customer confirmation', 'color' => 'success', 'maps_to_status' => TaskStatus::Resolved->value],
+            ['name' => 'Closed', 'description' => 'Confirmed resolved and closed', 'color' => 'success', 'maps_to_status' => TaskStatus::Closed->value],
+        ];
+
+        foreach ($tecStages as $stageData) {
+            WorkflowStage::create(array_merge($stageData, [
+                'workflow_id' => $tecWorkflow->id,
+            ]));
+        }
     }
 
     /**
