@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Opscale\NovaServiceDesk\Nova;
 
 use Illuminate\Http\Request as HttpRequest;
+use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\Boolean;
 use Laravel\Nova\Fields\DateTime;
 use Laravel\Nova\Fields\Hidden;
@@ -56,6 +57,38 @@ class Request extends Resource
     public function authorizedToUpdate(HttpRequest $request): bool
     {
         return isset(static::$template);
+    }
+
+    /**
+     * Get the fields displayed by the resource for the index.
+     *
+     * @return array<int, Field|\Laravel\Nova\Panel>
+     */
+    final public function fieldsForIndex(NovaRequest $request): array
+    {
+        if (isset(static::$template)) {
+            return $this->fields($request);
+        }
+
+        return [
+            BelongsTo::make(__('Template'), 'template', Template::class)
+                ->sortable()
+                ->filterable(),
+
+            Text::make(__('Tracking Code'), 'tracking_code')
+                ->readonly()
+                ->exceptOnForms(),
+
+            Text::make(__('Title'), fn (): string => $this->title()),
+
+            DateTime::make(__('Created At'), 'created_at')
+                ->sortable()
+                ->filterable(),
+
+            Boolean::make(__('Assigned'), 'assigned')
+                ->sortable()
+                ->exceptOnForms(),
+        ];
     }
 
     /**
