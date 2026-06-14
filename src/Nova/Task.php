@@ -12,6 +12,7 @@ use Laravel\Nova\Fields\Textarea;
 use Laravel\Nova\Http\Requests\NovaRequest;
 use Laravel\Nova\Nova;
 use Laravel\Nova\Resource;
+use Opscale\NovaComments\Commenter;
 use Opscale\NovaServiceDesk\Models\Enums\SLAPriority;
 use Opscale\NovaServiceDesk\Models\Enums\TaskStatus;
 use Opscale\NovaServiceDesk\Models\Task as Model;
@@ -215,6 +216,8 @@ class Task extends Resource
                 ->filterable()
                 ->displayUsing(fn ($value) => $value?->diffForHumans())
                 ->onlyOnDetail(),
+
+            Commenter::make(),
         ];
     }
 

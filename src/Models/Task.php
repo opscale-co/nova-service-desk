@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Opscale\NovaComments\Commentable;
 use Opscale\NovaServiceDesk\Models\Enums\SLAPriority;
 use Opscale\NovaServiceDesk\Models\Enums\TaskStatus;
 use Opscale\NovaServiceDesk\Models\Repositories\TaskRepository;
@@ -15,7 +16,7 @@ use Opscale\Validations\Validatable;
 
 class Task extends Model
 {
-    use HasUlids, SoftDeletes, TaskRepository, Validatable;
+    use Commentable, HasUlids, SoftDeletes, TaskRepository, Validatable;
 
     protected $table = 'service_desk_tasks';
 
