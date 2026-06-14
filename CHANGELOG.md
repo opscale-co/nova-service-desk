@@ -2,6 +2,12 @@
 
 All notable changes to opscale-co/nova-api will be documented in this file.
 
+## 1.2.0 (2026-06-14)
+
+* ci(workflows): bump php to 8.3 ([e8ac1cb](https://github.com/opscale-co/nova-service-desk/commit/e8ac1cb))
+* feat(request): add custom index fields for request resource ([0970f33](https://github.com/opscale-co/nova-service-desk/commit/0970f33))
+* feat(task): enable comments on task resource ([a4aeb66](https://github.com/opscale-co/nova-service-desk/commit/a4aeb66))
+
 ## 1.1.0 (2026-04-13)
 
 * Merge branch 'main' of https://github.com/opscale-co/nova-service-desk ([be7541b](https://github.com/opscale-co/nova-service-desk/commit/be7541b))
