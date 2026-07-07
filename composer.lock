@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ef685ec315979bcf558a3e70069b7b30",
+    "content-hash": "80acaba7f70fd340512f8fa2941f708b",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -3510,16 +3510,16 @@
         },
         {
             "name": "opscale-co/nova-comments",
-            "version": "1.0.1",
+            "version": "1.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/opscale-co/nova-comments.git",
-                "reference": "9992a1cff42f08bd0f1d58d7955ae8e362e7772c"
+                "reference": "f2314e1fa3a86ec5e866872353e92f3829345afa"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/opscale-co/nova-comments/zipball/9992a1cff42f08bd0f1d58d7955ae8e362e7772c",
-                "reference": "9992a1cff42f08bd0f1d58d7955ae8e362e7772c",
+                "url": "https://api.github.com/repos/opscale-co/nova-comments/zipball/f2314e1fa3a86ec5e866872353e92f3829345afa",
+                "reference": "f2314e1fa3a86ec5e866872353e92f3829345afa",
                 "shasum": ""
             },
             "require": {
@@ -3574,9 +3574,9 @@
             ],
             "support": {
                 "issues": "https://github.com/opscale-co/nova-comments/issues",
-                "source": "https://github.com/opscale-co/nova-comments/tree/v1.0.1"
+                "source": "https://github.com/opscale-co/nova-comments/tree/v1.1.0"
             },
-            "time": "2026-06-14T21:48:06+00:00"
+            "time": "2026-07-07T15:22:56+00:00"
         },
         {
             "name": "opscale-co/nova-dynamic-resources",
