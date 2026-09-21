@@ -36,27 +36,30 @@ class GetCategorySequence extends Action
         ];
     }
 
-    public function handle(array $attributes = []): array
+    public function outputs(): array
     {
-        $this->fill($attributes);
-        $validatedData = $this->validateAttributes();
+        return [
+            [
+                'name' => 'sequence',
+                'description' => 'The next sequential key for the category',
+                'type' => 'string',
+                'rules' => ['required', 'string'],
+            ],
+        ];
+    }
 
-        $template = Template::find($validatedData['template_id']);
+    public function handle(array $inputs = []): array
+    {
+        $template = Template::query()->find($inputs['template_id']);
 
         if (! $template) {
-            return [
-                'success' => false,
-                'sequence' => null,
-            ];
+            return $this->fail('Template not found', ['sequence' => null]);
         }
 
         $identifier = $template->identifier;
 
         if (! $identifier) {
-            return [
-                'success' => false,
-                'sequence' => null,
-            ];
+            return $this->fail('Template has no identifier', ['sequence' => null]);
         }
 
         $lastCategory = $template->categories()->withoutGlobalScopes()->orderByDesc('key')->first();
@@ -64,9 +67,6 @@ class GetCategorySequence extends Action
         $correlative = str_pad((string) ($lastNumber + 1), 2, '0', STR_PAD_LEFT);
         $sequence = $identifier.'-'.$correlative;
 
-        return [
-            'success' => true,
-            'sequence' => $sequence,
-        ];
+        return $this->succeed(['sequence' => $sequence]);
     }
 }

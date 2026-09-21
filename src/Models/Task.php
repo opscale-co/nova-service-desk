@@ -16,7 +16,11 @@ use Opscale\Validations\Validatable;
 
 class Task extends Model
 {
-    use Commentable, HasUlids, SoftDeletes, TaskRepository, Validatable;
+    use Commentable;
+    use HasUlids;
+    use SoftDeletes;
+    use TaskRepository;
+    use Validatable;
 
     protected $table = 'service_desk_tasks';
 

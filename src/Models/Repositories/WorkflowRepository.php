@@ -29,8 +29,8 @@ trait WorkflowRepository
     /**
      * Get stages mapped to a specific master status.
      */
-    public function stagesForStatus(TaskStatus $status): Collection
+    public function stagesForStatus(TaskStatus $taskStatus): Collection
     {
-        return $this->stages()->where('maps_to_status', $status->value)->get();
+        return $this->stages()->where('maps_to_status', $taskStatus->value)->get();
     }
 }

@@ -13,7 +13,7 @@ trait CategoryRepository
         $cacheKey = 'opscale.service-desk.categories.'.$key;
 
         return Cache::rememberForever($cacheKey, function () use ($key) {
-            return static::with('subcategories')->whereHas('subcategories', function ($query) {
+            return static::with('subcategories')->whereHas('subcategories', function ($query): void {
                 $query->orderBy('name');
             })->where('key', $key)->first();
         });

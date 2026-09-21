@@ -12,7 +12,9 @@ use Opscale\Validations\Validatable;
 
 class Resolution extends Model
 {
-    use HasUlids, ResolutionRepository, Validatable;
+    use HasUlids;
+    use ResolutionRepository;
+    use Validatable;
 
     protected $table = 'service_desk_resolutions';
 

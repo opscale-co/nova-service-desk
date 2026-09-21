@@ -15,9 +15,9 @@ class AverageTime extends Value
      *
      * @return mixed
      */
-    public function calculate(NovaRequest $request)
+    public function calculate(NovaRequest $novaRequest)
     {
-        $average = Task::whereNotNull('closed_at')
+        $average = Task::query()->whereNotNull('closed_at')
             ->get()
             ->avg(fn ($task) => $task->closed_at->diffInDays($task->created_at));
 
@@ -30,6 +30,7 @@ class AverageTime extends Value
      *
      * @return array
      */
+    #[\Override]
     public function ranges()
     {
         return [];
@@ -40,6 +41,7 @@ class AverageTime extends Value
      *
      * @return string
      */
+    #[\Override]
     public function uriKey()
     {
         return 'average-time';
@@ -50,6 +52,7 @@ class AverageTime extends Value
      *
      * @return string
      */
+    #[\Override]
     public function name()
     {
         return __('Average Time');

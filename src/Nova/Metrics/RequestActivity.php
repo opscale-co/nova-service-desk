@@ -17,8 +17,6 @@ class RequestActivity extends Trend
 
     /**
      * Create a new metric instance.
-     *
-     * @return void
      */
     public function __construct(?string $uriKey = null)
     {
@@ -30,18 +28,18 @@ class RequestActivity extends Trend
      *
      * @return mixed
      */
-    public function calculate(NovaRequest $request)
+    public function calculate(NovaRequest $novaRequest)
     {
         $query = Request::query();
 
         // Filter by uri_key if provided
         if ($this->uriKey) {
-            $query->whereHas('template', function ($q) {
+            $query->whereHas('template', function ($q): void {
                 $q->where('uri_key', $this->uriKey);
             });
         }
 
-        return $this->countByDays($request, $query)->showSumValue();
+        return $this->countByDays($novaRequest, $query)->showSumValue();
     }
 
     /**
@@ -49,6 +47,7 @@ class RequestActivity extends Trend
      *
      * @return array
      */
+    #[\Override]
     public function ranges()
     {
         return [
@@ -64,6 +63,7 @@ class RequestActivity extends Trend
      *
      * @return string
      */
+    #[\Override]
     public function uriKey()
     {
         return 'request-activity';
@@ -74,6 +74,7 @@ class RequestActivity extends Trend
      *
      * @return string
      */
+    #[\Override]
     public function name()
     {
         return __('Request Activity');

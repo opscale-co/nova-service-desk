@@ -6,18 +6,17 @@ namespace Opscale\NovaServiceDesk\Nova\Metrics;
 
 use Laravel\Nova\Http\Requests\NovaRequest;
 use Laravel\Nova\Metrics\Partition;
+use Laravel\Nova\Metrics\PartitionResult;
 use Opscale\NovaServiceDesk\Models\Task;
 
 class TasksByStatus extends Partition
 {
     /**
      * Calculate the value of the metric.
-     *
-     * @return mixed
      */
-    public function calculate(NovaRequest $request)
+    public function calculate(NovaRequest $novaRequest): PartitionResult
     {
-        return $this->count($request, Task::class, 'status');
+        return $this->count($novaRequest, Task::class, 'status');
     }
 
     /**
@@ -25,6 +24,7 @@ class TasksByStatus extends Partition
      *
      * @return string
      */
+    #[\Override]
     public function uriKey()
     {
         return 'tasks-by-status';
@@ -35,6 +35,7 @@ class TasksByStatus extends Partition
      *
      * @return string
      */
+    #[\Override]
     public function name()
     {
         return __('Tasks by Status');

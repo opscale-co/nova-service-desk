@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Opscale\NovaServiceDesk\Contracts;
 
+use Illuminate\Database\Eloquent\Model;
+
 /**
  * Marker contract for models that PROVIDE service — agents, technicians,
  * staff users that work on tickets.
@@ -20,7 +22,7 @@ interface ProvidesService
      * agent), return [$this]. For aggregate models (e.g. a Team), return
      * all the underlying agent users.
      *
-     * @return array<int, \Illuminate\Database\Eloquent\Model>
+     * @return array<int, Model>
      */
     public function servingAgents(): array;
 }

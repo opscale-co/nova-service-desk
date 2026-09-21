@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Opscale\NovaServiceDesk\Nova;
 
+use Illuminate\Database\Eloquent\Builder;
 use Laravel\Nova\Fields\Badge;
 use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\DateTime;
@@ -51,6 +52,7 @@ class Task extends Resource
     /**
      * Get the displayable label of the resource.
      */
+    #[\Override]
     public static function label(): string
     {
         return __('Tasks');
@@ -59,6 +61,7 @@ class Task extends Resource
     /**
      * Get the displayable singular label of the resource.
      */
+    #[\Override]
     public static function singularLabel(): string
     {
         return __('Task');
@@ -67,6 +70,7 @@ class Task extends Resource
     /**
      * Get the URI key for the resource.
      */
+    #[\Override]
     public static function uriKey(): string
     {
         return 'tasks';
@@ -75,9 +79,10 @@ class Task extends Resource
     /**
      * Build an "index" query for the given resource.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @param  Builder  $query
+     * @return Builder
      */
+    #[\Override]
     public static function indexQuery(NovaRequest $request, $query)
     {
         return $query->orderByPriority();
@@ -113,7 +118,7 @@ class Task extends Resource
             return [];
         }
 
-        return $workflow->stages->mapWithKeys(function ($stage) {
+        return $workflow->stages->mapWithKeys(function ($stage): array {
             return [$stage->name => $stage->color ?? 'info'];
         })->toArray();
     }
@@ -165,14 +170,14 @@ class Task extends Resource
 
             Badge::make(__('Status'), 'status')
                 ->map(self::statusOptions())
-                ->labels(collect(TaskStatus::cases())->mapWithKeys(fn ($case) => [$case->value => __($case->value)])->all())
-                ->canSee(fn () => $this->resource->workflow_id === null)
+                ->labels(collect(TaskStatus::cases())->mapWithKeys(fn ($case): array => [$case->value => __($case->value)])->all())
+                ->canSee(fn (): bool => $this->resource->workflow_id === null)
                 ->sortable()
                 ->filterable(),
 
             Badge::make(__('Stage'), 'status_alias')
                 ->map($this->workflowStageOptions())
-                ->canSee(fn () => $this->resource->workflow_id !== null)
+                ->canSee(fn (): bool => $this->resource->workflow_id !== null)
                 ->sortable()
                 ->filterable(),
 
@@ -184,7 +189,7 @@ class Task extends Resource
                     SLAPriority::Low->value => 'success',
                     SLAPriority::Planning->value => 'success',
                 ])
-                ->labels(collect(SLAPriority::cases())->mapWithKeys(fn ($case) => [$case->value => __($case->value)])->all())
+                ->labels(collect(SLAPriority::cases())->mapWithKeys(fn ($case): array => [$case->value => __($case->value)])->all())
                 ->sortable()
                 ->filterable(),
 
@@ -201,7 +206,7 @@ class Task extends Resource
                 ->filterable()
                 ->displayUsing(fn ($value) => $value?->diffForHumans())
                 ->onlyOnDetail()
-                ->canSee(fn () => $this->resource->status !== TaskStatus::Open),
+                ->canSee(fn (): bool => $this->resource->status !== TaskStatus::Open),
 
             DateTime::make(__('Closed At'), 'closed_at')
                 ->nullable()
@@ -209,7 +214,7 @@ class Task extends Resource
                 ->filterable()
                 ->displayUsing(fn ($value) => $value?->diffForHumans())
                 ->onlyOnDetail()
-                ->canSee(fn () => $this->resource->status === TaskStatus::Closed),
+                ->canSee(fn (): bool => $this->resource->status === TaskStatus::Closed),
 
             DateTime::make(__('Created At'), 'created_at')
                 ->sortable()
@@ -226,6 +231,7 @@ class Task extends Resource
      *
      * @return array
      */
+    #[\Override]
     public function cards(NovaRequest $request)
     {
         return [
@@ -240,6 +246,7 @@ class Task extends Resource
      *
      * @return array
      */
+    #[\Override]
     public function filters(NovaRequest $request)
     {
         return [];
@@ -250,6 +257,7 @@ class Task extends Resource
      *
      * @return array
      */
+    #[\Override]
     public function lenses(NovaRequest $request)
     {
         return [];
@@ -260,6 +268,7 @@ class Task extends Resource
      *
      * @return array
      */
+    #[\Override]
     public function actions(NovaRequest $request)
     {
         return [

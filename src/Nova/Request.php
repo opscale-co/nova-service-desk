@@ -12,6 +12,7 @@ use Laravel\Nova\Fields\Hidden;
 use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Http\Requests\NovaRequest;
+use Laravel\Nova\Panel;
 use Laravel\Nova\Resource;
 use Opscale\NovaDynamicResources\Nova\Concerns\UsesTemplate;
 use Opscale\NovaServiceDesk\Models\Account;
@@ -23,7 +24,7 @@ use Opscale\NovaServiceDesk\Nova\Metrics\RequestActivity;
 use Opscale\NovaServiceDesk\Services\Actions\AssignTask;
 
 /**
- * @extends Resource<Model>
+ * @extends resource<Model>
  */
 class Request extends Resource
 {
@@ -32,7 +33,7 @@ class Request extends Resource
     /**
      * The model the resource corresponds to.
      *
-     * @var class-string<\Opscale\NovaServiceDesk\Models\Request>
+     * @var class-string<Model>
      */
     public static $model = Model::class;
 
@@ -46,6 +47,7 @@ class Request extends Resource
     /**
      * Determine if the current user can create new resources.
      */
+    #[\Override]
     public static function authorizedToCreate(HttpRequest $request): bool
     {
         return isset(static::$template);
@@ -54,6 +56,7 @@ class Request extends Resource
     /**
      * Determine if the current user can update the given resource.
      */
+    #[\Override]
     public function authorizedToUpdate(HttpRequest $request): bool
     {
         return isset(static::$template);
@@ -62,12 +65,12 @@ class Request extends Resource
     /**
      * Get the fields displayed by the resource for the index.
      *
-     * @return array<int, Field|\Laravel\Nova\Panel>
+     * @return array<int, Field|Panel>
      */
-    final public function fieldsForIndex(NovaRequest $request): array
+    final public function fieldsForIndex(NovaRequest $novaRequest): array
     {
         if (isset(static::$template)) {
-            return $this->fields($request);
+            return $this->fields($novaRequest);
         }
 
         return [
@@ -121,6 +124,7 @@ class Request extends Resource
     /**
      * Get the actions available for the resource.
      */
+    #[\Override]
     public function actions(NovaRequest $request): array
     {
         return [
@@ -133,11 +137,12 @@ class Request extends Resource
     /**
      * Get the cards available for the resource.
      */
+    #[\Override]
     public function cards(NovaRequest $request): array
     {
         return [
-            new OpenRequests(static::uriKey()),
-            new RequestActivity(static::uriKey()),
+            new OpenRequests(self::uriKey()),
+            new RequestActivity(self::uriKey()),
         ];
     }
 
@@ -146,7 +151,7 @@ class Request extends Resource
      *
      * @return array<mixed>
      */
-    protected function categorizationFields(NovaRequest $request): array
+    protected function categorizationFields(NovaRequest $novaRequest): array
     {
         $accountId = isset(static::$template) ? static::$template->getData('account_id') : null;
         $categoryId = isset(static::$template) ? static::$template->getData('category_id') : null;
@@ -158,35 +163,35 @@ class Request extends Resource
                 Hidden::make('category_id')->default($categoryId),
                 Hidden::make('subcategory_id')->default($subcategoryId),
             ];
-        } else {
-            return [
-                Select::make(__('Account'), 'account_id')
-                    ->options(Account::with('customer')->get()->pluck('customer.name', 'id'))
-                    ->displayUsingLabels()
-                    ->required()
-                    ->hideFromIndex(),
-
-                Select::make(__('Category'), 'category_id')
-                    ->options(Category::pluck('name', 'id'))
-                    ->displayUsingLabels()
-                    ->required()
-                    ->hideFromIndex(),
-
-                Select::make(__('Subcategory'), 'subcategory_id')
-                    ->options(Subcategory::pluck('name', 'id'))
-                    ->dependsOn(['category_id'], function (Select $field, NovaRequest $request, $formData) {
-                        $categoryId = $formData->get('category_id');
-
-                        if ($categoryId) {
-                            $field->options(Subcategory::where('category_id', $categoryId)->pluck('name', 'id'));
-                        } else {
-                            $field->options([]);
-                        }
-                    })
-                    ->displayUsingLabels()
-                    ->required()
-                    ->hideFromIndex(),
-            ];
         }
+
+        return [
+            Select::make(__('Account'), 'account_id')
+                ->options(Account::with('customer')->get()->pluck('customer.name', 'id'))
+                ->displayUsingLabels()
+                ->required()
+                ->hideFromIndex(),
+
+            Select::make(__('Category'), 'category_id')
+                ->options(Category::query()->pluck('name', 'id'))
+                ->displayUsingLabels()
+                ->required()
+                ->hideFromIndex(),
+
+            Select::make(__('Subcategory'), 'subcategory_id')
+                ->options(Subcategory::query()->pluck('name', 'id'))
+                ->dependsOn(['category_id'], function (Select $select, NovaRequest $novaRequest, $formData): void {
+                    $categoryId = $formData->get('category_id');
+
+                    if ($categoryId) {
+                        $select->options(Subcategory::query()->where('category_id', $categoryId)->pluck('name', 'id'));
+                    } else {
+                        $select->options([]);
+                    }
+                })
+                ->displayUsingLabels()
+                ->required()
+                ->hideFromIndex(),
+        ];
     }
 }

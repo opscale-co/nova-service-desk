@@ -18,6 +18,7 @@ use Opscale\NovaServiceDesk\Models\Enums\TaskStatus;
 use Opscale\NovaServiceDesk\Models\Request;
 use Opscale\NovaServiceDesk\Models\Task;
 use Opscale\NovaServiceDesk\Models\Workflow;
+use Throwable;
 
 class AssignTask extends Action
 {
@@ -72,21 +73,30 @@ class AssignTask extends Action
         ];
     }
 
-    public function handle(array $attributes = []): array
+    public function outputs(): array
     {
-        $this->fill($attributes);
-        $validatedData = $this->validateAttributes();
+        return [
+            [
+                'name' => 'task',
+                'description' => 'The task that was assigned',
+                'type' => Task::class,
+                'rules' => ['required'],
+            ],
+        ];
+    }
 
+    public function handle(array $inputs = []): array
+    {
         /** @var Request $request */
-        $request = $validatedData['request'];
+        $request = $inputs['request'];
 
         $task = new Task;
         $task->fill([
             'request_id' => $request->id,
-            'title' => $validatedData['title'],
-            'description' => $validatedData['description'],
+            'title' => $inputs['title'],
+            'description' => $inputs['description'],
             'status' => TaskStatus::Open,
-            'assignee_id' => $validatedData['assignee_id'],
+            'assignee_id' => $inputs['assignee_id'],
             'assigner_id' => Auth::id(),
         ]);
 
@@ -94,26 +104,26 @@ class AssignTask extends Action
             'subcategory_id' => $request->subcategory_id,
         ]);
 
-        $task->key = $keyResult['sequence'];
+        $task->key = $keyResult->data()['sequence'] ?? null;
 
         $priorityResult = CalculatePriority::run([
             'task' => $task,
         ]);
 
-        $task->priority = $priorityResult['priority'];
-        $task->priority_score = $priorityResult['score'];
+        $task->priority = $priorityResult->data()['priority'] ?? null;
+        $task->priority_score = $priorityResult->data()['score'] ?? null;
 
         $dueDateResult = CalculateDueDate::run([
             'task' => $task,
         ]);
 
-        $task->due_date = $dueDateResult['due_date'];
+        $task->due_date = $dueDateResult->data()['due_date'] ?? null;
 
         // Resolve workflow: use explicit selection, or fall back to template key resolution
         $workflow = null;
 
-        if (! empty($validatedData['workflow_id'])) {
-            $workflow = Workflow::find($validatedData['workflow_id']);
+        if (! empty($inputs['workflow_id'])) {
+            $workflow = Workflow::query()->find($inputs['workflow_id']);
         }
 
         if (! $workflow) {
@@ -136,43 +146,41 @@ class AssignTask extends Action
 
         $request->update(['assigned' => true]);
 
-        return [
-            'success' => true,
+        return $this->succeed([
             'task' => $task,
             'message' => __('Task assigned successfully'),
-        ];
+        ]);
     }
 
+    #[\Override]
     public function asNovaAction(ActionFields $fields, Collection $models): mixed
     {
         try {
             $attributes = $fields->toArray();
             $attributes['request'] = $models->first();
 
-            $this->fill($attributes);
-            $validatedData = $this->validateAttributes();
+            $result = static::run($attributes);
 
-            $result = $this->handle($validatedData);
-
-            if (empty($result) || ! $result['success']) {
-                return Action::danger($result['message'] ?? __('Something went wrong while executing the action.'));
+            if ($result->isFail()) {
+                return $this->danger($result->message() ?? __('Something went wrong while executing the action.'));
             }
 
-            $task = $result['task'];
+            $task = $result->data()['task'];
 
-            return Action::visit("/resources/tasks/{$task->id}");
+            return $this->visit("/resources/tasks/{$task->id}");
         } catch (ValidationException $e) {
             $errors = [];
             foreach ($e->errors() as $field => $messages) {
                 $errors[] = "{$field}: ".implode(', ', $messages);
             }
 
-            return Action::danger(implode("\n", $errors));
+            return $this->danger(implode("\n", $errors));
         } catch (Throwable $e) {
-            return Action::danger($e->getMessage());
+            return $this->danger($e->getMessage());
         }
     }
 
+    #[\Override]
     public function getActionFields(): array
     {
         $users = $this->serviceProviders();
@@ -212,12 +220,12 @@ class AssignTask extends Action
             return [];
         }
 
-        /** @var ProvidesService $resolver */
-        $resolver = app(ProvidesService::class);
+        /** @var ProvidesService $providesService */
+        $providesService = resolve(ProvidesService::class);
 
-        return collect($resolver->servingAgents())
-            ->unique(fn (Model $agent) => $agent->getKey())
-            ->mapWithKeys(fn (Model $agent) => [$agent->getKey() => (string) ($agent->name ?? $agent->getKey())])
-            ->toArray();
+        return collect($providesService->servingAgents())
+            ->unique(fn (Model $model) => $model->getKey())
+            ->mapWithKeys(fn (Model $model): array => [$model->getKey() => (string) ($model->name ?? $model->getKey())])
+            ->all();
     }
 }

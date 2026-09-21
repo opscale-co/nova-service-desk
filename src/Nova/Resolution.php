@@ -42,6 +42,7 @@ class Resolution extends Resource
     /**
      * Get the displayable label of the resource.
      */
+    #[\Override]
     public static function label(): string
     {
         return __('Resolutions');
@@ -50,6 +51,7 @@ class Resolution extends Resource
     /**
      * Get the displayable singular label of the resource.
      */
+    #[\Override]
     public static function singularLabel(): string
     {
         return __('Resolution');
@@ -58,6 +60,7 @@ class Resolution extends Resource
     /**
      * Get the URI key for the resource.
      */
+    #[\Override]
     public static function uriKey(): string
     {
         return 'resolutions';
@@ -102,6 +105,7 @@ class Resolution extends Resource
      *
      * @return array
      */
+    #[\Override]
     public function cards(NovaRequest $request)
     {
         return [];
@@ -112,6 +116,7 @@ class Resolution extends Resource
      *
      * @return array
      */
+    #[\Override]
     public function filters(NovaRequest $request)
     {
         return [];
@@ -122,6 +127,7 @@ class Resolution extends Resource
      *
      * @return array
      */
+    #[\Override]
     public function lenses(NovaRequest $request)
     {
         return [];
@@ -132,6 +138,7 @@ class Resolution extends Resource
      *
      * @return array
      */
+    #[\Override]
     public function actions(NovaRequest $request)
     {
         return [];

@@ -83,7 +83,7 @@ class ToolServiceProvider extends NovaPackageServiceProvider
 
     protected function registerRoutes()
     {
-        if (optional($this->app)->routesAreCached()) {
+        if ($this->app?->routesAreCached()) {
             return;
         }
 

@@ -15,13 +15,13 @@ interface WorkflowResolver
      *
      * @return array<string>
      */
-    public function allowedTransitions(Task $task, WorkflowStage $currentStage): array;
+    public function allowedTransitions(Task $task, WorkflowStage $workflowStage): array;
 
     /**
      * Check if a specific transition is allowed.
      * Use for guard logic (e.g., required fields, role checks).
      */
-    public function canTransitionTo(Task $task, WorkflowStage $targetStage): bool;
+    public function canTransitionTo(Task $task, WorkflowStage $workflowStage): bool;
 
     /**
      * Get the reason a transition was denied (for error messages).

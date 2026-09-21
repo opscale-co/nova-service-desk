@@ -24,7 +24,7 @@ class CalculatePriority extends Action
 
     public function description(): string
     {
-        return 'Calculates ITIL-based priority from task\'s request subcategory impact and urgency';
+        return "Calculates ITIL-based priority from task's request subcategory impact and urgency";
     }
 
     public function parameters(): array
@@ -39,47 +39,61 @@ class CalculatePriority extends Action
         ];
     }
 
-    public function handle(array $attributes = []): array
+    public function outputs(): array
     {
-        $this->fill($attributes);
-        $validatedData = $this->validateAttributes();
+        return [
+            [
+                'name' => 'priority',
+                'description' => 'The calculated ITIL priority',
+                'type' => 'string',
+                'rules' => ['required', 'string'],
+            ],
+            [
+                'name' => 'score',
+                'description' => 'The numeric priority score',
+                'type' => 'float',
+                'rules' => ['required', 'numeric'],
+            ],
+        ];
+    }
 
+    public function handle(array $inputs = []): array
+    {
         /** @var Task $task */
-        $task = $validatedData['task'];
+        $task = $inputs['task'];
         $request = $task->request;
         $impact = SLAPriority::Medium->value;
         $urgency = SLAPriority::Medium->value;
 
         if ($request->subcategory_id) {
-            $subcategory = Subcategory::find($request->subcategory_id);
+            $subcategory = Subcategory::query()->find($request->subcategory_id);
             if ($subcategory) {
                 $impact = $subcategory->impact ?? SLAPriority::Medium->value;
                 $urgency = $subcategory->urgency ?? SLAPriority::Medium->value;
             }
         }
 
-        $priority = $this->getPriority($impact, $urgency);
-        $score = $this->resolveScore($task, $priority);
+        $slaPriority = $this->getPriority($impact, $urgency);
+        $score = $this->resolveScore($task, $slaPriority);
 
-        return [
-            'success' => true,
-            'priority' => $priority->value,
+        return $this->succeed([
+            'priority' => $slaPriority->value,
             'score' => $score,
-        ];
+        ]);
     }
 
     /**
      * Resolve the priority score: first ask the workflow resolver (if any)
      * for a custom score, otherwise fall back to the default mapping.
      */
-    protected function resolveScore(Task $task, SLAPriority $priority): float
+    protected function resolveScore(Task $task, SLAPriority $slaPriority): float
     {
         $templateKey = strtoupper(substr($task->key ?? '', 0, 3));
         $resolvers = config('nova-service-desk.workflow_resolvers', []);
 
         if (isset($resolvers[$templateKey])) {
             /** @var WorkflowResolver $resolver */
-            $resolver = app($resolvers[$templateKey]);
+            $resolver = resolve($resolvers[$templateKey]);
             $custom = $resolver->priorityScore($task);
 
             if ($custom !== null) {
@@ -87,13 +101,13 @@ class CalculatePriority extends Action
             }
         }
 
-        return $this->getScore($priority);
+        return $this->getScore($slaPriority);
     }
 
     /**
      * Get priority from impact and urgency.
      */
-    protected function getPriority(string $impact, string $urgency, SLAPriority $default = SLAPriority::Medium): SLAPriority
+    protected function getPriority(string $impact, string $urgency, SLAPriority $slaPriority = SLAPriority::Medium): SLAPriority
     {
         $matrix = [
             'High' => [
@@ -113,15 +127,15 @@ class CalculatePriority extends Action
             ],
         ];
 
-        return $matrix[$impact][$urgency] ?? $default;
+        return $matrix[$impact][$urgency] ?? $slaPriority;
     }
 
     /**
      * Get score from priority.
      */
-    protected function getScore(SLAPriority $priority, float $default = 0.5): float
+    protected function getScore(SLAPriority $slaPriority, float $default = 0.5): float
     {
-        return match ($priority) {
+        return match ($slaPriority) {
             SLAPriority::Critical => 1.0,
             SLAPriority::High => 0.75,
             SLAPriority::Medium => 0.5,

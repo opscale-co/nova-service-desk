@@ -13,7 +13,9 @@ use Opscale\Validations\Validatable;
 
 class Category extends Model
 {
-    use CategoryRepository, HasUlids, Validatable;
+    use CategoryRepository;
+    use HasUlids;
+    use Validatable;
 
     /**
      * @var array<string, array<int, string>>

@@ -17,8 +17,6 @@ class OpenRequests extends Value
 
     /**
      * Create a new metric instance.
-     *
-     * @return void
      */
     public function __construct(?string $uriKey = null)
     {
@@ -30,19 +28,19 @@ class OpenRequests extends Value
      *
      * @return mixed
      */
-    public function calculate(NovaRequest $request)
+    public function calculate(NovaRequest $novaRequest)
     {
-        $query = Request::query()
+        $builder = Request::query()
             ->whereDoesntHave('task');
 
         // Filter by uri_key if provided
         if ($this->uriKey) {
-            $query->whereHas('template', function ($q) {
+            $builder->whereHas('template', function ($q): void {
                 $q->where('uri_key', $this->uriKey);
             });
         }
 
-        $count = $query->count();
+        $count = $builder->count();
 
         return $this->result($count)
             ->suffix(__('requests'));
@@ -53,6 +51,7 @@ class OpenRequests extends Value
      *
      * @return array
      */
+    #[\Override]
     public function ranges()
     {
         return [];
@@ -63,6 +62,7 @@ class OpenRequests extends Value
      *
      * @return string
      */
+    #[\Override]
     public function uriKey()
     {
         return 'open-requests';
@@ -73,6 +73,7 @@ class OpenRequests extends Value
      *
      * @return string
      */
+    #[\Override]
     public function name()
     {
         return __('Open Requests');

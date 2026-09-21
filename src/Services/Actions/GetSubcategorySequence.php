@@ -36,27 +36,30 @@ class GetSubcategorySequence extends Action
         ];
     }
 
-    public function handle(array $attributes = []): array
+    public function outputs(): array
     {
-        $this->fill($attributes);
-        $validatedData = $this->validateAttributes();
+        return [
+            [
+                'name' => 'sequence',
+                'description' => 'The next sequential key for the subcategory',
+                'type' => 'string',
+                'rules' => ['required', 'string'],
+            ],
+        ];
+    }
 
-        $category = Category::find($validatedData['category_id']);
+    public function handle(array $inputs = []): array
+    {
+        $category = Category::query()->find($inputs['category_id']);
 
         if (! $category) {
-            return [
-                'success' => false,
-                'sequence' => null,
-            ];
+            return $this->fail('Category not found', ['sequence' => null]);
         }
 
         $categoryKey = $category->key;
 
         if (! $categoryKey) {
-            return [
-                'success' => false,
-                'sequence' => null,
-            ];
+            return $this->fail('Category has no key', ['sequence' => null]);
         }
 
         $lastSubcategory = $category->subcategories()->withoutGlobalScopes()->orderByDesc('key')->first();
@@ -64,9 +67,6 @@ class GetSubcategorySequence extends Action
         $correlative = str_pad((string) ($lastNumber + 1), 2, '0', STR_PAD_LEFT);
         $sequence = $categoryKey.'-'.$correlative;
 
-        return [
-            'success' => true,
-            'sequence' => $sequence,
-        ];
+        return $this->succeed(['sequence' => $sequence]);
     }
 }

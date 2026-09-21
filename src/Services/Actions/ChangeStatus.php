@@ -55,29 +55,39 @@ class ChangeStatus extends Action
         ];
     }
 
-    public function handle(array $attributes = []): array
+    public function outputs(): array
     {
-        $this->fill($attributes);
-        $validatedData = $this->validateAttributes();
+        return [
+            [
+                'name' => 'task',
+                'description' => 'The task after the transition',
+                'type' => Task::class,
+                'rules' => ['required'],
+            ],
+        ];
+    }
 
+    public function handle(array $inputs = []): array
+    {
         /** @var Task $task */
-        $task = $validatedData['task'];
+        $task = $inputs['task'];
 
         if ($task->workflow_id) {
-            return $this->transitionByWorkflow($task, $validatedData['stage_id'] ?? null);
+            return $this->transitionByWorkflow($task, $inputs['stage_id'] ?? null);
         }
 
-        return $this->transitionByStatus($task, $validatedData['status'] ?? null);
+        return $this->transitionByStatus($task, $inputs['status'] ?? null);
     }
 
     // --- Nova integration ---
 
+    #[\Override]
     public function asNovaAction(ActionFields $fields, Collection $models): mixed
     {
-        foreach ($models as $task) {
-            $attributes = ['task' => $task];
+        foreach ($models as $model) {
+            $attributes = ['task' => $model];
 
-            if ($task->workflow_id) {
+            if ($model->workflow_id) {
                 $attributes['stage_id'] = $fields->stage_id;
             } else {
                 $attributes['status'] = $fields->status;
@@ -85,18 +95,19 @@ class ChangeStatus extends Action
 
             $result = static::run($attributes);
 
-            if (empty($result) || ! $result['success']) {
-                return $this->danger($result['message'] ?? __('Something went wrong while executing the action.'));
+            if ($result->isFail()) {
+                return $this->danger($result->message() ?? __('Something went wrong while executing the action.'));
             }
         }
 
         return $this->message(__('Status updated successfully'));
     }
 
+    #[\Override]
     public function getActionFields(): array
     {
-        $request = app(NovaRequest::class);
-        $taskId = $this->resolveTaskIdFromRequest($request);
+        $novaRequest = resolve(NovaRequest::class);
+        $taskId = $this->resolveTaskIdFromRequest($novaRequest);
 
         if ($taskId) {
             $task = Task::with(['workflow.stages', 'workflowStage'])->find($taskId);
@@ -117,36 +128,24 @@ class ChangeStatus extends Action
     protected function transitionByWorkflow(Task $task, ?string $stageId): array
     {
         if (! $stageId) {
-            return [
-                'success' => false,
-                'message' => __('A stage is required for workflow tasks.'),
-            ];
+            return $this->fail(__('A stage is required for workflow tasks.'));
         }
 
-        $targetStage = WorkflowStage::find($stageId);
+        $targetStage = WorkflowStage::query()->find($stageId);
 
         if (! $targetStage) {
-            return [
-                'success' => false,
-                'message' => __('Invalid workflow stage.'),
-            ];
+            return $this->fail(__('Invalid workflow stage.'));
         }
 
         if ($targetStage->workflow_id !== $task->workflow_id) {
-            return [
-                'success' => false,
-                'message' => __('Stage does not belong to the task workflow.'),
-            ];
+            return $this->fail(__('Stage does not belong to the task workflow.'));
         }
 
         $templateKey = strtoupper(substr($task->key ?? '', 0, 3));
         $resolver = $this->resolveWorkflowResolver($templateKey);
 
-        if ($resolver && ! $resolver->canTransitionTo($task, $targetStage)) {
-            return [
-                'success' => false,
-                'message' => $resolver->message(),
-            ];
+        if ($resolver instanceof WorkflowResolver && ! $resolver->canTransitionTo($task, $targetStage)) {
+            return $this->fail($resolver->message());
         }
 
         $task->update([
@@ -155,11 +154,10 @@ class ChangeStatus extends Action
             'status_alias' => $targetStage->name,
         ]);
 
-        return [
-            'success' => true,
+        return $this->succeed([
             'task' => $task->fresh(),
             'message' => __('Task transitioned successfully'),
-        ];
+        ]);
     }
 
     /**
@@ -168,40 +166,30 @@ class ChangeStatus extends Action
     protected function transitionByStatus(Task $task, ?string $status): array
     {
         if (! $status) {
-            return [
-                'success' => false,
-                'message' => __('A status is required.'),
-            ];
+            return $this->fail(__('A status is required.'));
         }
 
         $targetStatus = TaskStatus::tryFrom($status);
 
         if (! $targetStatus) {
-            return [
-                'success' => false,
-                'message' => __('Invalid status.'),
-            ];
+            return $this->fail(__('Invalid status.'));
         }
 
         if (! $task->status->canTransitionTo($targetStatus)) {
-            return [
-                'success' => false,
-                'message' => __('Cannot transition from :from to :to.', [
-                    'from' => $task->status->value,
-                    'to' => $targetStatus->value,
-                ]),
-            ];
+            return $this->fail(__('Cannot transition from :from to :to.', [
+                'from' => $task->status->value,
+                'to' => $targetStatus->value,
+            ]));
         }
 
         $task->update([
             'status' => $targetStatus,
         ]);
 
-        return [
-            'success' => true,
+        return $this->succeed([
             'task' => $task->fresh(),
             'message' => __('Status updated successfully'),
-        ];
+        ]);
     }
 
     /**
@@ -215,13 +203,13 @@ class ChangeStatus extends Action
      *   - Related resource context → `viaResourceId`
      *   - "Run on all" submissions → `'all'` (no specific ID)
      */
-    protected function resolveTaskIdFromRequest(NovaRequest $request): ?string
+    protected function resolveTaskIdFromRequest(NovaRequest $novaRequest): ?string
     {
         $candidates = [
-            $request->input('resourceId'),
-            $request->input('resources'),
-            $request->input('viaResourceId'),
-            $request->route('resourceId'),
+            $novaRequest->input('resourceId'),
+            $novaRequest->input('resources'),
+            $novaRequest->input('viaResourceId'),
+            $novaRequest->route('resourceId'),
         ];
 
         foreach ($candidates as $candidate) {
@@ -242,7 +230,7 @@ class ChangeStatus extends Action
      */
     protected function normalizeResourceId(mixed $value): ?string
     {
-        if ($value === null || $value === '' || $value === 'all') {
+        if (in_array($value, [null, '', 'all'], true)) {
             return null;
         }
 
@@ -263,15 +251,15 @@ class ChangeStatus extends Action
         $templateKey = strtoupper(substr($task->key ?? '', 0, 3));
         $resolver = $this->resolveWorkflowResolver($templateKey);
 
-        if ($resolver && $task->workflowStage) {
+        if ($resolver instanceof WorkflowResolver && $task->workflowStage) {
             $allowedIds = $resolver->allowedTransitions($task, $task->workflowStage);
 
-            $stages = WorkflowStage::where('workflow_id', $task->workflow_id)
+            $stages = WorkflowStage::query()->where('workflow_id', $task->workflow_id)
                 ->whereIn('id', $allowedIds)
                 ->pluck('name', 'id')
                 ->toArray();
         } else {
-            $stages = WorkflowStage::where('workflow_id', $task->workflow_id)
+            $stages = WorkflowStage::query()->where('workflow_id', $task->workflow_id)
                 ->where('id', '!=', $task->workflow_stage_id)
                 ->pluck('name', 'id')
                 ->toArray();
@@ -285,7 +273,7 @@ class ChangeStatus extends Action
     protected function statusField(Task $task): Select
     {
         $allowed = $task->status->allowedTransitions();
-        $options = collect($allowed)->mapWithKeys(fn (TaskStatus $s) => [$s->value => __($s->value)])->toArray();
+        $options = collect($allowed)->mapWithKeys(fn (TaskStatus $taskStatus): array => [$taskStatus->value => __($taskStatus->value)])->all();
 
         return Select::make(__('Status'), 'status')
             ->options($options)
@@ -294,7 +282,7 @@ class ChangeStatus extends Action
 
     protected function defaultStatusField(): Select
     {
-        $statuses = collect(TaskStatus::cases())->mapWithKeys(fn ($case) => [$case->value => __($case->value)])->toArray();
+        $statuses = collect(TaskStatus::cases())->mapWithKeys(fn ($case): array => [$case->value => __($case->value)])->all();
 
         return Select::make(__('Status'), 'status')
             ->options($statuses)
@@ -306,7 +294,7 @@ class ChangeStatus extends Action
         $resolvers = config('nova-service-desk.workflow_resolvers', []);
 
         if (isset($resolvers[$templateKey])) {
-            return app($resolvers[$templateKey]);
+            return resolve($resolvers[$templateKey]);
         }
 
         return null;

@@ -12,7 +12,6 @@ use Opscale\NovaServiceDesk\Models\Subcategory;
 use Opscale\NovaServiceDesk\Models\Workflow;
 use Opscale\NovaServiceDesk\Models\WorkflowStage;
 use Opscale\NovaServiceDesk\Tests\DuskTestCase;
-use Override;
 use PHPUnit\Framework\Attributes\Test;
 
 /**
@@ -36,11 +35,9 @@ final class ConfigurationTest extends DuskTestCase
      */
     private static bool $wiped = false;
 
-    #[Override]
     protected function setUp(): void
     {
         parent::setUp();
-
         if (! self::$wiped) {
             $this->wipeFixtureTables();
             self::$wiped = true;
@@ -66,7 +63,7 @@ final class ConfigurationTest extends DuskTestCase
     #[Test]
     final public function creates_a_subcategory(): void
     {
-        $categoryId = Category::where('key', 'TEC')->firstOrFail()->id;
+        $categoryId = Category::query()->where('key', 'TEC')->firstOrFail()->id;
 
         $this->browse(function (Browser $browser) use ($categoryId): void {
             $this->loginToNova($browser)

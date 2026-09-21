@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Workbench\App\Resolvers;
 
+use Illuminate\Database\Eloquent\Model;
 use Opscale\NovaServiceDesk\Contracts\ProvidesService;
 use Opscale\NovaServiceDesk\Contracts\RequiresService;
 use Workbench\App\Models\Department;
@@ -28,7 +29,7 @@ class ServiceResolver implements ProvidesService, RequiresService
     /**
      * Entities apt to have tasks placed on them.
      *
-     * @return array<int, \Illuminate\Database\Eloquent\Model>
+     * @return array<int, Model>
      */
     public function servedEntities(): array
     {
@@ -38,7 +39,7 @@ class ServiceResolver implements ProvidesService, RequiresService
     /**
      * Agents that actually deliver the service.
      *
-     * @return array<int, \Illuminate\Database\Eloquent\Model>
+     * @return array<int, Model>
      */
     public function servingAgents(): array
     {

@@ -53,6 +53,7 @@ class Subcategory extends Resource
      *
      * @return string
      */
+    #[\Override]
     public static function uriKey()
     {
         return 'subcategories';
@@ -63,6 +64,7 @@ class Subcategory extends Resource
      *
      * @return string
      */
+    #[\Override]
     public static function singularLabel()
     {
         return __('Subcategory');
@@ -73,6 +75,7 @@ class Subcategory extends Resource
      *
      * @return string
      */
+    #[\Override]
     public static function label()
     {
         return __('Subcategories');
@@ -98,11 +101,11 @@ class Subcategory extends Resource
 
             Text::make(__('Key'), 'key')
                 ->immutable()
-                ->dependsOn(['category'], function (Text $field, NovaRequest $request, $formData) {
+                ->dependsOn(['category'], function (Text $text, NovaRequest $novaRequest, array $formData): void {
                     if (! empty($formData['category'])) {
                         $result = GetSubcategorySequence::run(['category_id' => $formData['category']]);
-                        if ($result['success']) {
-                            $field->setValue($result['sequence']);
+                        if ($result->isSuccess()) {
+                            $text->setValue($result->data()['sequence']);
                         }
                     }
                 }),
@@ -113,8 +116,8 @@ class Subcategory extends Resource
 
             Select::make(__('Impact'), 'impact')
                 ->options($this->getDefaultOptions('impact'))
-                ->dependsOn(['category'], function (Select $field, NovaRequest $request, $formData) {
-                    $field->options($this->getCustomOptions($formData['category'], 'impact'));
+                ->dependsOn(['category'], function (Select $select, NovaRequest $novaRequest, array $formData): void {
+                    $select->options($this->getCustomOptions($formData['category'], 'impact'));
                 })
                 ->rules(['required'])
                 ->displayUsingLabels()
@@ -122,8 +125,8 @@ class Subcategory extends Resource
 
             Select::make(__('Urgency'), 'urgency')
                 ->options($this->getDefaultOptions('urgency'))
-                ->dependsOn(['category'], function (Select $field, NovaRequest $request, $formData) {
-                    $field->options($this->getCustomOptions($formData['category'], 'urgency'));
+                ->dependsOn(['category'], function (Select $select, NovaRequest $novaRequest, array $formData): void {
+                    $select->options($this->getCustomOptions($formData['category'], 'urgency'));
                 })
                 ->rules(['required'])
                 ->displayUsingLabels()
@@ -139,13 +142,13 @@ class Subcategory extends Resource
         $options = $this->getDefaultOptions($field);
 
         if ($categoryId) {
-            $category = CategoryModel::find($categoryId);
+            $category = CategoryModel::query()->find($categoryId);
             if ($category) {
                 $catalogKey = $category->{"{$field}_options"};
 
                 if ($catalogKey) {
                     $catalog = CategoryModel::fromKey($catalogKey);
-                    if ($catalog && $catalog->subcategories()->exists()) {
+                    if ($catalog instanceof CategoryModel && $catalog->subcategories()->exists()) {
                         $options = $catalog->subcategories()->pluck('name', 'key')->toArray();
                     }
                 }

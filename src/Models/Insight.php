@@ -14,7 +14,10 @@ use Opscale\Validations\Validatable;
 
 class Insight extends Model
 {
-    use HasUlids, InsightRepository, SoftDeletes, Validatable;
+    use HasUlids;
+    use InsightRepository;
+    use SoftDeletes;
+    use Validatable;
 
     protected $table = 'service_desk_insights';
 

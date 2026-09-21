@@ -37,6 +37,7 @@ class Account extends Resource
     /**
      * Get the displayable label of the resource.
      */
+    #[\Override]
     public static function label(): string
     {
         return __('Accounts');
@@ -45,6 +46,7 @@ class Account extends Resource
     /**
      * Get the displayable singular label of the resource.
      */
+    #[\Override]
     public static function singularLabel(): string
     {
         return __('Account');
@@ -53,6 +55,7 @@ class Account extends Resource
     /**
      * Get the URI key for the resource.
      */
+    #[\Override]
     public static function uriKey(): string
     {
         return 'accounts';
@@ -61,6 +64,7 @@ class Account extends Resource
     /**
      * Get the value that should be displayed to represent the resource.
      */
+    #[\Override]
     public function title(): string
     {
         return $this->customer?->name ?? $this->id;
@@ -105,6 +109,7 @@ class Account extends Resource
      *
      * @return array
      */
+    #[\Override]
     public function cards(NovaRequest $request)
     {
         return [];
@@ -115,6 +120,7 @@ class Account extends Resource
      *
      * @return array
      */
+    #[\Override]
     public function filters(NovaRequest $request)
     {
         return [];
@@ -125,6 +131,7 @@ class Account extends Resource
      *
      * @return array
      */
+    #[\Override]
     public function lenses(NovaRequest $request)
     {
         return [];
@@ -135,6 +142,7 @@ class Account extends Resource
      *
      * @return array
      */
+    #[\Override]
     public function actions(NovaRequest $request)
     {
         return [];
@@ -154,10 +162,10 @@ class Account extends Resource
             return [];
         }
 
-        /** @var RequiresService $resolver */
-        $resolver = app(RequiresService::class);
+        /** @var RequiresService $requiresService */
+        $requiresService = resolve(RequiresService::class);
 
-        $modelClasses = (new Collection($resolver->servedEntities()))
+        $modelClasses = (new Collection($requiresService->servedEntities()))
             ->map(fn ($entity) => $entity::class)
             ->unique()
             ->all();

@@ -23,7 +23,8 @@ use Opscale\NovaServiceDesk\Nova\Workflow;
 
 class Tool extends NovaTool
 {
-    public function boot()
+    #[\Override]
+    public function boot(): void
     {
         Nova::script('nova-service-desk', __DIR__.'/../dist/js/tool.js');
         Nova::style('nova-service-desk', __DIR__.'/../dist/css/tool.css');
@@ -69,10 +70,10 @@ class Tool extends NovaTool
             return $items;
         }
 
-        WorkflowModel::orderBy('name')->get()->each(function (WorkflowModel $workflow) use (&$items) {
+        WorkflowModel::query()->orderBy('name')->get()->each(function (WorkflowModel $workflowModel) use (&$items): void {
             $items[] = MenuItem::link(
-                $workflow->name,
-                '/nova-service-desk?workflow='.$workflow->slug,
+                $workflowModel->name,
+                '/nova-service-desk?workflow='.$workflowModel->slug,
             );
         });
 
@@ -87,8 +88,8 @@ class Tool extends NovaTool
     protected function requestResources(): array
     {
         return collect(Nova::$resources)
-            ->filter(fn ($resource) => is_subclass_of($resource, Request::class))
-            ->map(fn ($resource) => MenuItem::resource($resource))
+            ->filter(fn ($resource): bool => is_subclass_of($resource, Request::class))
+            ->map(fn (string $resource) => MenuItem::resource($resource))
             ->values()
             ->all();
     }

@@ -7,6 +7,7 @@ namespace Opscale\NovaServiceDesk\Tests;
 use Illuminate\Database\Eloquent\Model;
 use Laravel\Nova\NovaCoreServiceProvider;
 use Laravel\Nova\NovaServiceProvider;
+use Opscale\NovaServiceDesk\ToolServiceProvider;
 use Orchestra\Testbench\TestCase as BaseTestCase;
 use Override;
 
@@ -22,7 +23,7 @@ abstract class TestCase extends BaseTestCase
     protected function getPackageProviders($app): array
     {
         return array_merge(parent::getPackageProviders($app), [
-            \Opscale\NovaServiceDesk\ToolServiceProvider::class,
+            ToolServiceProvider::class,
             NovaServiceProvider::class,
             NovaCoreServiceProvider::class,
         ]);

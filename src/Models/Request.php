@@ -15,7 +15,11 @@ use Opscale\Validations\Validatable;
 
 class Request extends Model
 {
-    use Actionable, HasUlids, RequestRepository, UsesTemplate, Validatable;
+    use Actionable;
+    use HasUlids;
+    use RequestRepository;
+    use UsesTemplate;
+    use Validatable;
 
     protected $table = 'service_desk_requests';
 

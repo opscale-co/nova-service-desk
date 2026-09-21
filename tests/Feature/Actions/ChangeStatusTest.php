@@ -16,55 +16,55 @@ use Opscale\NovaServiceDesk\Services\Actions\ChangeStatus;
 use Workbench\App\Models\User;
 
 beforeEach(function (): void {
-    $category = Category::create([
+    $category = Category::query()->create([
         'name' => 'IT Support',
         'key' => 'ITS',
     ]);
 
-    $subcategory = Subcategory::create([
+    $subcategory = Subcategory::query()->create([
         'category_id' => $category->id,
         'name' => 'Hardware',
         'key' => 'ITS-01',
     ]);
 
-    $account = Account::create([
+    $account = Account::query()->create([
         'customer_type' => User::class,
         'customer_id' => '01test000000000000000000001',
         'profile' => 'Test Account',
     ]);
 
-    $template = Template::create([
+    $template = Template::query()->create([
         'singular_label' => 'IT Request',
         'label' => 'IT Requests',
         'uri_key' => 'it-requests',
     ]);
 
-    $this->user = User::create([
+    $this->user = User::query()->create([
         'name' => 'Test User',
         'email' => 'test@example.com',
         'password' => bcrypt('password'),
     ]);
 
-    $this->request = Request::create([
+    $this->request = Request::query()->create([
         'account_id' => $account->id,
         'category_id' => $category->id,
         'subcategory_id' => $subcategory->id,
         'template_id' => $template->id,
     ]);
 
-    $this->workflow = Workflow::create([
+    $this->workflow = Workflow::query()->create([
         'name' => 'Default Workflow',
         'slug' => 'default-workflow',
         'key' => 'DEF',
     ]);
 
-    $this->stageOpen = WorkflowStage::create([
+    $this->stageOpen = WorkflowStage::query()->create([
         'workflow_id' => $this->workflow->id,
         'name' => 'Open',
         'maps_to_status' => TaskStatus::Open->value,
     ]);
 
-    $this->stageInProgress = WorkflowStage::create([
+    $this->stageInProgress = WorkflowStage::query()->create([
         'workflow_id' => $this->workflow->id,
         'name' => 'In Progress',
         'maps_to_status' => TaskStatus::InProgress->value,
@@ -74,7 +74,7 @@ beforeEach(function (): void {
 // --- Workflow-based transitions ---
 
 it('transitions a workflow task to a new stage', function (): void {
-    $task = Task::create([
+    $task = Task::query()->create([
         'request_id' => $this->request->id,
         'assignee_id' => $this->user->id,
         'assigner_id' => $this->user->id,
@@ -93,14 +93,14 @@ it('transitions a workflow task to a new stage', function (): void {
         'stage_id' => $this->stageInProgress->id,
     ]);
 
-    expect($result['success'])->toBeTrue();
-    expect($result['task']->workflow_stage_id)->toBe($this->stageInProgress->id);
-    expect($result['task']->status->value)->toBe(TaskStatus::InProgress->value);
-    expect($result['task']->status_alias)->toBe('In Progress');
+    expect($result->isSuccess())->toBeTrue();
+    expect($result->data()['task']->workflow_stage_id)->toBe($this->stageInProgress->id);
+    expect($result->data()['task']->status->value)->toBe(TaskStatus::InProgress->value);
+    expect($result->data()['task']->status_alias)->toBe('In Progress');
 });
 
 it('fails when stage does not exist', function (): void {
-    $task = Task::create([
+    $task = Task::query()->create([
         'request_id' => $this->request->id,
         'assignee_id' => $this->user->id,
         'assigner_id' => $this->user->id,
@@ -119,12 +119,12 @@ it('fails when stage does not exist', function (): void {
         'stage_id' => 'non-existent-id',
     ]);
 
-    expect($result['success'])->toBeFalse();
-    expect($result['message'])->toContain('Invalid workflow stage');
+    expect($result->isFail())->toBeTrue();
+    expect($result->message())->toContain('Invalid workflow stage');
 });
 
 it('fails when stage belongs to a different workflow', function (): void {
-    $task = Task::create([
+    $task = Task::query()->create([
         'request_id' => $this->request->id,
         'assignee_id' => $this->user->id,
         'assigner_id' => $this->user->id,
@@ -138,13 +138,13 @@ it('fails when stage belongs to a different workflow', function (): void {
         'workflow_stage_id' => $this->stageOpen->id,
     ]);
 
-    $otherWorkflow = Workflow::create([
+    $otherWorkflow = Workflow::query()->create([
         'name' => 'Other Workflow',
         'slug' => 'other-workflow',
         'key' => 'OTH',
     ]);
 
-    $otherStage = WorkflowStage::create([
+    $workflowStage = WorkflowStage::query()->create([
         'workflow_id' => $otherWorkflow->id,
         'name' => 'Other Stage',
         'maps_to_status' => TaskStatus::Open->value,
@@ -152,17 +152,17 @@ it('fails when stage belongs to a different workflow', function (): void {
 
     $result = ChangeStatus::run([
         'task' => $task,
-        'stage_id' => $otherStage->id,
+        'stage_id' => $workflowStage->id,
     ]);
 
-    expect($result['success'])->toBeFalse();
-    expect($result['message'])->toContain('does not belong');
+    expect($result->isFail())->toBeTrue();
+    expect($result->message())->toContain('does not belong');
 });
 
 // --- Status-based transitions (no workflow) ---
 
 it('transitions a non-workflow task by status', function (): void {
-    $task = Task::create([
+    $task = Task::query()->create([
         'request_id' => $this->request->id,
         'assignee_id' => $this->user->id,
         'assigner_id' => $this->user->id,
@@ -179,12 +179,12 @@ it('transitions a non-workflow task by status', function (): void {
         'status' => TaskStatus::InProgress->value,
     ]);
 
-    expect($result['success'])->toBeTrue();
-    expect($result['task']->status->value)->toBe(TaskStatus::InProgress->value);
+    expect($result->isSuccess())->toBeTrue();
+    expect($result->data()['task']->status->value)->toBe(TaskStatus::InProgress->value);
 });
 
 it('rejects invalid status transitions', function (): void {
-    $task = Task::create([
+    $task = Task::query()->create([
         'request_id' => $this->request->id,
         'assignee_id' => $this->user->id,
         'assigner_id' => $this->user->id,
@@ -201,12 +201,12 @@ it('rejects invalid status transitions', function (): void {
         'status' => TaskStatus::Closed->value,
     ]);
 
-    expect($result['success'])->toBeFalse();
-    expect($result['message'])->toContain('Cannot transition');
+    expect($result->isFail())->toBeTrue();
+    expect($result->message())->toContain('Cannot transition');
 });
 
 it('rejects transition with invalid status value', function (): void {
-    $task = Task::create([
+    $task = Task::query()->create([
         'request_id' => $this->request->id,
         'assignee_id' => $this->user->id,
         'assigner_id' => $this->user->id,
@@ -223,6 +223,6 @@ it('rejects transition with invalid status value', function (): void {
         'status' => 'NonExistent',
     ]);
 
-    expect($result['success'])->toBeFalse();
-    expect($result['message'])->toContain('Invalid status');
+    expect($result->isFail())->toBeTrue();
+    expect($result->message())->toContain('Invalid status');
 });

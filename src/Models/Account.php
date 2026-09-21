@@ -14,7 +14,9 @@ use Opscale\Validations\Validatable;
 
 class Account extends Model
 {
-    use HasUlids, SoftDeletes, Validatable;
+    use HasUlids;
+    use SoftDeletes;
+    use Validatable;
 
     protected $table = 'service_desk_accounts';
 

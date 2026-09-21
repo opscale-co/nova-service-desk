@@ -14,7 +14,9 @@ use Opscale\Validations\Validatable;
 
 class SLAPolicy extends Model
 {
-    use HasUlids, SoftDeletes, Validatable;
+    use HasUlids;
+    use SoftDeletes;
+    use Validatable;
 
     protected $table = 'service_desk_sla_policies';
 

@@ -45,6 +45,7 @@ class Category extends Resource
      *
      * @return string
      */
+    #[\Override]
     public static function uriKey()
     {
         return 'categories';
@@ -55,6 +56,7 @@ class Category extends Resource
      *
      * @return string
      */
+    #[\Override]
     public static function singularLabel()
     {
         return __('Category');
@@ -65,6 +67,7 @@ class Category extends Resource
      *
      * @return string
      */
+    #[\Override]
     public static function label()
     {
         return __('Categories');

@@ -15,9 +15,9 @@ class TaskActivity extends Trend
      *
      * @return mixed
      */
-    public function calculate(NovaRequest $request)
+    public function calculate(NovaRequest $novaRequest)
     {
-        return $this->countByDays($request, Task::class)->showSumValue();
+        return $this->countByDays($novaRequest, Task::class)->showSumValue();
     }
 
     /**
@@ -25,6 +25,7 @@ class TaskActivity extends Trend
      *
      * @return array
      */
+    #[\Override]
     public function ranges()
     {
         return [
@@ -40,6 +41,7 @@ class TaskActivity extends Trend
      *
      * @return string
      */
+    #[\Override]
     public function uriKey()
     {
         return 'task-activity';
@@ -50,6 +52,7 @@ class TaskActivity extends Trend
      *
      * @return string
      */
+    #[\Override]
     public function name()
     {
         return __('Task Activity');

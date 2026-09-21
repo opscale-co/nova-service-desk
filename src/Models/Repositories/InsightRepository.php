@@ -8,7 +8,7 @@ trait InsightRepository
 {
     public static function bootInsightRepository(): void
     {
-        static::creating(function ($insight) {
+        static::creating(function ($insight): void {
             $insight->author = auth()->user()?->name;
         });
     }

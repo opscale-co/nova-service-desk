@@ -49,6 +49,7 @@ class SLAPolicy extends Resource
      *
      * @return string
      */
+    #[\Override]
     public static function label()
     {
         return __('SLA Policies');
@@ -59,6 +60,7 @@ class SLAPolicy extends Resource
      *
      * @return string
      */
+    #[\Override]
     public static function singularLabel()
     {
         return __('SLA Policy');
@@ -69,6 +71,7 @@ class SLAPolicy extends Resource
      *
      * @return string
      */
+    #[\Override]
     public static function uriKey()
     {
         return 'sla-policies';
@@ -91,7 +94,7 @@ class SLAPolicy extends Resource
                 ->nullable(),
 
             Select::make(__('Priority'), 'priority')
-                ->options(collect(SLAPriority::cases())->mapWithKeys(fn ($case) => [$case->value => __($case->value)]))
+                ->options(collect(SLAPriority::cases())->mapWithKeys(fn ($case): array => [$case->value => __($case->value)]))
                 ->required()
                 ->sortable()
                 ->filterable(),
@@ -101,7 +104,7 @@ class SLAPolicy extends Resource
                     SLAPolicyStatus::Active->value => 'success',
                     SLAPolicyStatus::Inactive->value => 'danger',
                 ])
-                ->labels(collect(SLAPolicyStatus::cases())->mapWithKeys(fn ($case) => [$case->value => __($case->value)])->all())
+                ->labels(collect(SLAPolicyStatus::cases())->mapWithKeys(fn ($case): array => [$case->value => __($case->value)])->all())
                 ->sortable()
                 ->filterable(),
 
@@ -124,12 +127,12 @@ class SLAPolicy extends Resource
                 ->hideFromIndex(),
 
             MultiSelect::make(__('Supported Channels'), 'supported_channels')
-                ->options(collect(ServiceChannel::cases())->mapWithKeys(fn ($case) => [$case->value => __($case->value)]))
+                ->options(collect(ServiceChannel::cases())->mapWithKeys(fn ($case): array => [$case->value => __($case->value)]))
                 ->rules('required')
                 ->hideFromIndex(),
 
             Select::make(__('Service Timezone'), 'service_timezone')
-                ->options(collect(timezone_identifiers_list())->mapWithKeys(fn ($tz) => [$tz => $tz]))
+                ->options(collect(timezone_identifiers_list())->mapWithKeys(fn ($tz): array => [$tz => $tz]))
                 ->searchable()
                 ->rules('required')
                 ->hideFromIndex(),
@@ -156,6 +159,7 @@ class SLAPolicy extends Resource
      *
      * @return array
      */
+    #[\Override]
     public function cards(NovaRequest $request)
     {
         return [];
@@ -166,6 +170,7 @@ class SLAPolicy extends Resource
      *
      * @return array
      */
+    #[\Override]
     public function filters(NovaRequest $request)
     {
         return [];
@@ -176,6 +181,7 @@ class SLAPolicy extends Resource
      *
      * @return array
      */
+    #[\Override]
     public function lenses(NovaRequest $request)
     {
         return [];
@@ -186,6 +192,7 @@ class SLAPolicy extends Resource
      *
      * @return array
      */
+    #[\Override]
     public function actions(NovaRequest $request)
     {
         return [];

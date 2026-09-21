@@ -13,12 +13,12 @@ use Opscale\NovaServiceDesk\Services\Actions\GetTaskSequence;
 use Workbench\App\Models\User;
 
 it('generates the first task sequence for a subcategory', function (): void {
-    $category = Category::create([
+    $category = Category::query()->create([
         'name' => 'IT Support',
         'key' => 'ITS',
     ]);
 
-    $subcategory = Subcategory::create([
+    $subcategory = Subcategory::query()->create([
         'category_id' => $category->id,
         'name' => 'Hardware',
         'key' => 'ITS-01',
@@ -28,48 +28,48 @@ it('generates the first task sequence for a subcategory', function (): void {
         'subcategory_id' => $subcategory->id,
     ]);
 
-    expect($result['success'])->toBeTrue();
-    expect($result['sequence'])->toBe('ITS-01-000001');
+    expect($result->isSuccess())->toBeTrue();
+    expect($result->data()['sequence'])->toBe('ITS-01-000001');
 });
 
 it('increments the task sequence', function (): void {
-    $category = Category::create([
+    $category = Category::query()->create([
         'name' => 'IT Support',
         'key' => 'ITS',
     ]);
 
-    $subcategory = Subcategory::create([
+    $subcategory = Subcategory::query()->create([
         'category_id' => $category->id,
         'name' => 'Hardware',
         'key' => 'ITS-01',
     ]);
 
-    $account = Account::create([
+    $account = Account::query()->create([
         'customer_type' => User::class,
         'customer_id' => '01test000000000000000000001',
         'profile' => 'Test Account',
     ]);
 
-    $template = Template::create([
+    $template = Template::query()->create([
         'singular_label' => 'IT Request',
         'label' => 'IT Requests',
         'uri_key' => 'it-requests',
     ]);
 
-    $request = Request::create([
+    $request = Request::query()->create([
         'account_id' => $account->id,
         'category_id' => $category->id,
         'subcategory_id' => $subcategory->id,
         'template_id' => $template->id,
     ]);
 
-    $user = User::create([
+    $user = User::query()->create([
         'name' => 'Test User',
         'email' => 'test@example.com',
         'password' => bcrypt('password'),
     ]);
 
-    Task::create([
+    Task::query()->create([
         'request_id' => $request->id,
         'assignee_id' => $user->id,
         'assigner_id' => $user->id,
@@ -85,8 +85,8 @@ it('increments the task sequence', function (): void {
         'subcategory_id' => $subcategory->id,
     ]);
 
-    expect($result['success'])->toBeTrue();
-    expect($result['sequence'])->toBe('ITS-01-000002');
+    expect($result->isSuccess())->toBeTrue();
+    expect($result->data()['sequence'])->toBe('ITS-01-000002');
 });
 
 it('returns failure when subcategory does not exist', function (): void {
@@ -94,6 +94,6 @@ it('returns failure when subcategory does not exist', function (): void {
         'subcategory_id' => 'non-existent-id',
     ]);
 
-    expect($result['success'])->toBeFalse();
-    expect($result['sequence'])->toBeNull();
+    expect($result->isFail())->toBeTrue();
+    expect($result->data()['sequence'])->toBeNull();
 });

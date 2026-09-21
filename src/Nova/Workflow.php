@@ -44,6 +44,7 @@ class Workflow extends Resource
     /**
      * Get the displayable label of the resource.
      */
+    #[\Override]
     public static function label(): string
     {
         return __('Workflows');
@@ -52,6 +53,7 @@ class Workflow extends Resource
     /**
      * Get the displayable singular label of the resource.
      */
+    #[\Override]
     public static function singularLabel(): string
     {
         return __('Workflow');
@@ -60,6 +62,7 @@ class Workflow extends Resource
     /**
      * Get the URI key for the resource.
      */
+    #[\Override]
     public static function uriKey(): string
     {
         return 'workflows';
@@ -82,10 +85,10 @@ class Workflow extends Resource
                 ->creationRules('unique:service_desk_workflows,slug')
                 ->updateRules('unique:service_desk_workflows,slug,{{resourceId}}')
                 ->help(__('URL-friendly identifier. Auto-generated from the name if left blank.'))
-                ->fillUsing(function (NovaRequest $request, $model, $attribute, $requestAttribute) {
-                    $value = $request->input($requestAttribute);
+                ->fillUsing(function (NovaRequest $novaRequest, $model, $attribute, $requestAttribute): void {
+                    $value = $novaRequest->input($requestAttribute);
                     $model->{$attribute} = empty($value)
-                        ? Str::slug((string) $request->input('name'))
+                        ? Str::slug((string) $novaRequest->input('name'))
                         : Str::slug($value);
                 })
                 ->sortable(),
@@ -110,6 +113,7 @@ class Workflow extends Resource
      *
      * @return array
      */
+    #[\Override]
     public function cards(NovaRequest $request)
     {
         return [];
@@ -120,6 +124,7 @@ class Workflow extends Resource
      *
      * @return array
      */
+    #[\Override]
     public function filters(NovaRequest $request)
     {
         return [];
@@ -130,6 +135,7 @@ class Workflow extends Resource
      *
      * @return array
      */
+    #[\Override]
     public function lenses(NovaRequest $request)
     {
         return [];
@@ -140,6 +146,7 @@ class Workflow extends Resource
      *
      * @return array
      */
+    #[\Override]
     public function actions(NovaRequest $request)
     {
         return [];

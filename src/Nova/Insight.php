@@ -45,6 +45,7 @@ class Insight extends Resource
     /**
      * Get the displayable label of the resource.
      */
+    #[\Override]
     public static function label(): string
     {
         return __('Insights');
@@ -53,6 +54,7 @@ class Insight extends Resource
     /**
      * Get the displayable singular label of the resource.
      */
+    #[\Override]
     public static function singularLabel(): string
     {
         return __('Insight');
@@ -61,6 +63,7 @@ class Insight extends Resource
     /**
      * Get the URI key for the resource.
      */
+    #[\Override]
     public static function uriKey(): string
     {
         return 'insights';
@@ -78,7 +81,7 @@ class Insight extends Resource
                 ->required(),
 
             Select::make(__('Scope'), 'scope')
-                ->options(collect(InsightScope::cases())->mapWithKeys(fn ($case) => [$case->value => __($case->value)]))
+                ->options(collect(InsightScope::cases())->mapWithKeys(fn ($case): array => [$case->value => __($case->value)]))
                 ->required()
                 ->sortable(),
 
@@ -109,6 +112,7 @@ class Insight extends Resource
      *
      * @return array
      */
+    #[\Override]
     public function cards(NovaRequest $request)
     {
         return [];
@@ -119,6 +123,7 @@ class Insight extends Resource
      *
      * @return array
      */
+    #[\Override]
     public function filters(NovaRequest $request)
     {
         return [];
@@ -129,6 +134,7 @@ class Insight extends Resource
      *
      * @return array
      */
+    #[\Override]
     public function lenses(NovaRequest $request)
     {
         return [];
@@ -139,6 +145,7 @@ class Insight extends Resource
      *
      * @return array
      */
+    #[\Override]
     public function actions(NovaRequest $request)
     {
         return [];

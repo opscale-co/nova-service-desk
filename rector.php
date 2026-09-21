@@ -5,7 +5,9 @@
 declare(strict_types=1);
 
 use Rector\Caching\ValueObject\Storage\FileCacheStorage;
+use Rector\CodeQuality\Rector\If_\SimplifyIfReturnBoolRector;
 use Rector\Config\RectorConfig;
+use Rector\Php83\Rector\ClassMethod\AddOverrideAttributeToOverriddenMethodsRector;
 use Rector\PHPUnit\Set\PHPUnitSetList;
 use Rector\Set\ValueObject\SetList;
 use Rector\ValueObject\PhpVersion;
@@ -26,7 +28,7 @@ function phpSetup(): array
         ],
         'sets' => [
             // Basic PHP rules
-            SetList::PHP_82,
+            SetList::PHP_83,
             SetList::CODE_QUALITY,
             SetList::CODING_STYLE,
             SetList::DEAD_CODE,
@@ -36,7 +38,7 @@ function phpSetup(): array
             SetList::EARLY_RETURN,
 
             // PHPUnit rules
-            PHPUnitSetList::PHPUNIT_110,
+            PHPUnitSetList::COMPOSER_BASED,
             PHPUnitSetList::PHPUNIT_CODE_QUALITY,
             PHPUnitSetList::ANNOTATIONS_TO_ATTRIBUTES,
         ],
@@ -45,7 +47,7 @@ function phpSetup(): array
             __DIR__.'/tests/fixtures',
 
             // Specific rules
-            Rector\CodeQuality\Rector\If_\SimplifyIfReturnBoolRector::class,
+            SimplifyIfReturnBoolRector::class,
         ],
     ];
 }
@@ -65,7 +67,7 @@ function laravelSetup(): array
         ]),
         'sets' => array_merge($phpConfig['sets'], [
             // Laravel specific rules
-            LaravelSetList::LARAVEL_110,
+            LaravelSetList::LARAVEL_120,
             LaravelSetList::LARAVEL_CODE_QUALITY,
             LaravelSetList::LARAVEL_COLLECTION,
             LaravelSetList::LARAVEL_ELOQUENT_MAGIC_METHOD_TO_QUERY_BUILDER,
@@ -84,7 +86,8 @@ function laravelSetup(): array
 return static function (RectorConfig $rectorConfig): void {
     $rectorConfig->cacheDirectory('/tmp/rector-cache');
     $rectorConfig->cacheClass(FileCacheStorage::class);
-    $rectorConfig->phpVersion(PhpVersion::PHP_82);
+    $rectorConfig->phpVersion(PhpVersion::PHP_83);
+    $rectorConfig->rule(AddOverrideAttributeToOverriddenMethodsRector::class);
 
     // Get configuration for Laravel projects
     $config = laravelSetup();

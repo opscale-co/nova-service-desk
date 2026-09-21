@@ -16,10 +16,10 @@ trait TaskRepository
      */
     public static function bootTaskRepository(): void
     {
-        static::updating(function ($model) {
+        static::updating(function ($model): void {
             // Workflow-driven transition: validate via WorkflowResolver
             if ($model->isDirty('workflow_stage_id') && $model->workflow_stage_id !== null) {
-                $targetStage = WorkflowStage::find($model->workflow_stage_id);
+                $targetStage = WorkflowStage::query()->find($model->workflow_stage_id);
 
                 if (! $targetStage) {
                     abort(422, __('Invalid workflow stage.'));
@@ -28,7 +28,7 @@ trait TaskRepository
                 $templateKey = strtoupper(substr($model->key ?? '', 0, 3));
                 $resolver = static::resolveWorkflowResolver($templateKey);
 
-                if ($resolver) {
+                if ($resolver instanceof WorkflowResolver) {
                     if (! $resolver->canTransitionTo($model, $targetStage)) {
                         abort(422, $resolver->message());
                     }
@@ -67,7 +67,7 @@ trait TaskRepository
         $resolvers = config('nova-service-desk.workflow_resolvers', []);
 
         if (isset($resolvers[$templateKey])) {
-            return app($resolvers[$templateKey]);
+            return resolve($resolvers[$templateKey]);
         }
 
         return null;
@@ -76,9 +76,9 @@ trait TaskRepository
     /**
      * Scope a query to order tasks by priority.
      */
-    public function scopeOrderByPriority(Builder $query): Builder
+    protected function scopeOrderByPriority(Builder $builder): Builder
     {
-        return $query->orderByRaw("
+        return $builder->orderByRaw("
             CASE status
                 WHEN 'In Progress' THEN 1
                 WHEN 'Blocked' THEN 2
@@ -94,57 +94,57 @@ trait TaskRepository
     /**
      * Scope a query to get only open tasks.
      */
-    public function scopeOpen(Builder $query): Builder
+    protected function scopeOpen(Builder $builder): Builder
     {
-        return $query->where('status', 'Open');
+        return $builder->where('status', 'Open');
     }
 
     /**
      * Scope a query to get only in progress tasks.
      */
-    public function scopeInProgress(Builder $query): Builder
+    protected function scopeInProgress(Builder $builder): Builder
     {
-        return $query->where('status', 'In Progress');
+        return $builder->where('status', 'In Progress');
     }
 
     /**
      * Scope a query to get only blocked tasks.
      */
-    public function scopeBlocked(Builder $query): Builder
+    protected function scopeBlocked(Builder $builder): Builder
     {
-        return $query->where('status', 'Blocked');
+        return $builder->where('status', 'Blocked');
     }
 
     /**
      * Scope a query to get only resolved tasks.
      */
-    public function scopeResolved(Builder $query): Builder
+    protected function scopeResolved(Builder $builder): Builder
     {
-        return $query->where('status', 'Resolved');
+        return $builder->where('status', 'Resolved');
     }
 
     /**
      * Scope a query to get only closed tasks.
      */
-    public function scopeClosed(Builder $query): Builder
+    protected function scopeClosed(Builder $builder): Builder
     {
-        return $query->where('status', 'Closed');
+        return $builder->where('status', 'Closed');
     }
 
     /**
      * Scope a query to get only cancelled tasks.
      */
-    public function scopeCancelled(Builder $query): Builder
+    protected function scopeCancelled(Builder $builder): Builder
     {
-        return $query->where('status', 'Cancelled');
+        return $builder->where('status', 'Cancelled');
     }
 
     /**
      * Scope a query to get active tasks (not closed or cancelled).
      */
-    public function scopeActive(Builder $query): Builder
+    protected function scopeActive(Builder $builder): Builder
     {
-        return $query->whereNotIn('status', ['Closed', 'Cancelled']);
+        return $builder->whereNotIn('status', ['Closed', 'Cancelled']);
     }
 
     /**
@@ -152,26 +152,26 @@ trait TaskRepository
      *
      * @param  mixed  $assignee
      */
-    public function scopeForAssignee(Builder $query, $assignee): Builder
+    protected function scopeForAssignee(Builder $builder, $assignee): Builder
     {
-        return $query->where('assignee_type', get_class($assignee))
+        return $builder->where('assignee_type', get_class($assignee))
             ->where('assignee_id', $assignee->id);
     }
 
     /**
      * Scope a query to get tasks by request.
      */
-    public function scopeForRequest(Builder $query, string $requestId): Builder
+    protected function scopeForRequest(Builder $builder, string $requestId): Builder
     {
-        return $query->where('request_id', $requestId);
+        return $builder->where('request_id', $requestId);
     }
 
     /**
      * Scope a query to get overdue tasks.
      */
-    public function scopeOverdue(Builder $query): Builder
+    protected function scopeOverdue(Builder $builder): Builder
     {
-        return $query->whereNotNull('due_date')
+        return $builder->whereNotNull('due_date')
             ->where('due_date', '<', now())
             ->whereNotIn('status', ['Closed', 'Cancelled']);
     }

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Opscale\NovaServiceDesk\Contracts;
 
+use Illuminate\Database\Eloquent\Model;
+
 /**
  * Marker contract for models that REQUEST service — Customers, Accounts,
  * Devices and any entity that can have tasks placed on it.
@@ -21,7 +23,7 @@ interface RequiresService
      * with multiple branches), return all the underlying entities that
      * can be the target of a task.
      *
-     * @return array<int, \Illuminate\Database\Eloquent\Model>
+     * @return array<int, Model>
      */
     public function servedEntities(): array;
 }

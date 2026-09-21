@@ -14,6 +14,7 @@ class Contact extends Repeatable
     /**
      * Get the label for the repeatable.
      */
+    #[\Override]
     public static function label(): string
     {
         return __('Contact');
@@ -24,6 +25,7 @@ class Contact extends Repeatable
      *
      * @return array
      */
+    #[\Override]
     public function fields(NovaRequest $request)
     {
         return [

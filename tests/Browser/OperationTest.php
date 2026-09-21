@@ -18,7 +18,6 @@ use Opscale\NovaServiceDesk\Models\Template;
 use Opscale\NovaServiceDesk\Models\Workflow;
 use Opscale\NovaServiceDesk\Models\WorkflowStage;
 use Opscale\NovaServiceDesk\Tests\DuskTestCase;
-use Override;
 use PHPUnit\Framework\Attributes\Test;
 use Workbench\App\Models\User;
 
@@ -36,11 +35,9 @@ use Workbench\App\Models\User;
  */
 final class OperationTest extends DuskTestCase
 {
-    #[Override]
     protected function setUp(): void
     {
         parent::setUp();
-
         $this->ensureFixtures();
     }
 
@@ -60,8 +57,8 @@ final class OperationTest extends DuskTestCase
     #[Test]
     final public function assigns_a_task_to_the_request(): void
     {
-        $request = RequestModel::latest('created_at')->firstOrFail();
-        $assigneeId = (string) User::where('email', 'admin@laravel.com')->firstOrFail()->id;
+        $request = RequestModel::query()->latest('created_at')->firstOrFail();
+        $assigneeId = (string) User::query()->where('email', 'admin@laravel.com')->firstOrFail()->id;
 
         $this->browse(function (Browser $browser) use ($request, $assigneeId): void {
             $this->loginToNova($browser)
@@ -80,7 +77,7 @@ final class OperationTest extends DuskTestCase
     #[Test]
     final public function views_the_assigned_task(): void
     {
-        $task = Task::latest('created_at')->firstOrFail();
+        $task = Task::query()->latest('created_at')->firstOrFail();
 
         $this->browse(function (Browser $browser) use ($task): void {
             $this->loginToNova($browser)
@@ -94,7 +91,7 @@ final class OperationTest extends DuskTestCase
     #[Test]
     final public function transitions_the_task_between_stages(): void
     {
-        $task = Task::latest('created_at')->firstOrFail();
+        $task = Task::query()->latest('created_at')->firstOrFail();
         $triagedStageId = (string) WorkflowStage::query()
             ->whereHas('workflow', fn ($q) => $q->where('slug', 'technical-support'))
             ->where('name', 'Triaged')
@@ -122,24 +119,18 @@ final class OperationTest extends DuskTestCase
      */
     private function ensureFixtures(): void
     {
-        $category = Category::firstOrCreate(
-            ['key' => 'TEC'],
-            [
-                'name' => 'Technical Support',
-                'description' => 'Technical support issues and requests',
-            ],
-        );
+        $category = Category::query()->firstOrCreate(['key' => 'TEC'], [
+            'name' => 'Technical Support',
+            'description' => 'Technical support issues and requests',
+        ]);
 
-        $subcategory = Subcategory::firstOrCreate(
-            ['key' => 'TEC-001'],
-            [
-                'category_id' => $category->id,
-                'name' => 'General Inquiry',
-                'description' => 'General technical inquiries',
-                'impact' => SLAPriority::Medium->value,
-                'urgency' => SLAPriority::Medium->value,
-            ],
-        );
+        $subcategory = Subcategory::query()->firstOrCreate(['key' => 'TEC-001'], [
+            'category_id' => $category->id,
+            'name' => 'General Inquiry',
+            'description' => 'General technical inquiries',
+            'impact' => SLAPriority::Medium->value,
+            'urgency' => SLAPriority::Medium->value,
+        ]);
 
         $serviceTime = $this->defaultServiceTime();
         $supportedChannels = ['Web', 'Email', 'Phone'];
@@ -153,28 +144,25 @@ final class OperationTest extends DuskTestCase
         ];
 
         $createdPolicies = collect($policiesByPriority)->map(function (array $data) use ($serviceTime, $supportedChannels) {
-            return SLAPolicy::firstOrCreate(
-                ['name' => $data['name']],
-                [
-                    'description' => $data['name'],
-                    'priority' => $data['priority'],
-                    'status' => SLAPolicyStatus::Active,
-                    'max_contact_time' => $data['contact'],
-                    'max_resolution_time' => $data['resolution'],
-                    'update_frequency' => $data['contact'],
-                    'supported_channels' => $supportedChannels,
-                    'service_timezone' => 'America/New_York',
-                    'service_time' => $serviceTime,
-                    'service_exceptions' => [],
-                ],
-            );
+            return SLAPolicy::query()->firstOrCreate(['name' => $data['name']], [
+                'description' => $data['name'],
+                'priority' => $data['priority'],
+                'status' => SLAPolicyStatus::Active,
+                'max_contact_time' => $data['contact'],
+                'max_resolution_time' => $data['resolution'],
+                'update_frequency' => $data['contact'],
+                'supported_channels' => $supportedChannels,
+                'service_timezone' => 'America/New_York',
+                'service_time' => $serviceTime,
+                'service_exceptions' => [],
+            ]);
         });
 
-        $account = Account::firstOrFail();
+        $account = Account::query()->firstOrFail();
         $account->policies()->syncWithoutDetaching($createdPolicies->pluck('id')->all());
         $account->categories()->syncWithoutDetaching([$category->id]);
 
-        $template = Template::firstOrFail();
+        $template = Template::query()->firstOrFail();
         $template->categories()->syncWithoutDetaching([$category->id]);
 
         if ($template->getData('account_id') !== $account->id) {
@@ -184,14 +172,11 @@ final class OperationTest extends DuskTestCase
             $template->save();
         }
 
-        $workflow = Workflow::firstOrCreate(
-            ['key' => 'TEC'],
-            [
-                'name' => 'Technical Support',
-                'slug' => 'technical-support',
-                'description' => 'Standard workflow for technical support tickets',
-            ],
-        );
+        $workflow = Workflow::query()->firstOrCreate(['key' => 'TEC'], [
+            'name' => 'Technical Support',
+            'slug' => 'technical-support',
+            'description' => 'Standard workflow for technical support tickets',
+        ]);
 
         $stages = [
             ['name' => 'New', 'description' => 'Ticket received, pending triage', 'color' => 'warning', 'maps_to_status' => TaskStatus::Open->value],
@@ -203,14 +188,11 @@ final class OperationTest extends DuskTestCase
             ['name' => 'Closed', 'description' => 'Confirmed resolved and closed', 'color' => 'success', 'maps_to_status' => TaskStatus::Closed->value],
         ];
 
-        foreach ($stages as $stageData) {
-            WorkflowStage::firstOrCreate(
-                [
-                    'workflow_id' => $workflow->id,
-                    'name' => $stageData['name'],
-                ],
-                $stageData,
-            );
+        foreach ($stages as $stage) {
+            WorkflowStage::query()->firstOrCreate([
+                'workflow_id' => $workflow->id,
+                'name' => $stage['name'],
+            ], $stage);
         }
     }
 
@@ -223,7 +205,7 @@ final class OperationTest extends DuskTestCase
         $hours = ['start_time' => '08:00', 'end_time' => '17:00'];
 
         return collect(['monday', 'tuesday', 'wednesday', 'thursday', 'friday'])
-            ->map(fn (string $day) => ['type' => $type, 'fields' => array_merge(['day' => $day], $hours)])
+            ->map(fn (string $day): array => ['type' => $type, 'fields' => array_merge(['day' => $day], $hours)])
             ->all();
     }
 }

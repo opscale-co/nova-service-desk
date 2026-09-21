@@ -18,9 +18,9 @@ enum TaskStatus: string implements CanTransition
     /**
      * Check if the current status can transition to the given status.
      */
-    public function canTransitionTo(CanTransition $status): bool
+    public function canTransitionTo(CanTransition $canTransition): bool
     {
-        return in_array($status, $this->allowedTransitions());
+        return in_array($canTransition, $this->allowedTransitions());
     }
 
     /**

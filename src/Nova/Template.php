@@ -23,13 +23,14 @@ class Template extends BaseTemplate
     /**
      * The model the resource corresponds to.
      *
-     * @var class-string<\Opscale\NovaServiceDesk\Models\Template>
+     * @var class-string<Model>
      */
     public static $model = Model::class;
 
     /**
      * Get the URI key for the resource.
      */
+    #[\Override]
     public static function uriKey(): string
     {
         return 'request-templates';
@@ -38,6 +39,7 @@ class Template extends BaseTemplate
     /**
      * Get the displayable label of the resource.
      */
+    #[\Override]
     public static function label(): string
     {
         return __('Templates');
@@ -46,6 +48,7 @@ class Template extends BaseTemplate
     /**
      * Get the displayable singular label of the resource.
      */
+    #[\Override]
     public static function singularLabel(): string
     {
         return __('Template');
@@ -56,6 +59,7 @@ class Template extends BaseTemplate
      *
      * @return array<mixed>
      */
+    #[\Override]
     public function fields(NovaRequest $request): array
     {
         return [

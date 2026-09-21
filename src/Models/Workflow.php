@@ -12,7 +12,9 @@ use Opscale\Validations\Validatable;
 
 class Workflow extends Model
 {
-    use HasUlids, Validatable, WorkflowRepository;
+    use HasUlids;
+    use Validatable;
+    use WorkflowRepository;
 
     public static array $validationRules = [
         'name' => 'required|string|max:256',

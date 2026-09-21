@@ -12,7 +12,8 @@ use Opscale\Validations\Validatable;
 
 class Subcategory extends Model
 {
-    use HasUlids, Validatable;
+    use HasUlids;
+    use Validatable;
 
     /**
      * @var array<string, array<int, string>>

@@ -49,6 +49,7 @@ class WorkflowStage extends Resource
     /**
      * Get the displayable label of the resource.
      */
+    #[\Override]
     public static function label(): string
     {
         return __('Workflow Stages');
@@ -57,6 +58,7 @@ class WorkflowStage extends Resource
     /**
      * Get the displayable singular label of the resource.
      */
+    #[\Override]
     public static function singularLabel(): string
     {
         return __('Workflow Stage');
@@ -65,6 +67,7 @@ class WorkflowStage extends Resource
     /**
      * Get the URI key for the resource.
      */
+    #[\Override]
     public static function uriKey(): string
     {
         return 'workflow-stages';
@@ -102,7 +105,7 @@ class WorkflowStage extends Resource
                 ->displayUsingLabels(),
 
             Select::make(__('Maps to Status'), 'maps_to_status')
-                ->options(collect(TaskStatus::cases())->mapWithKeys(fn ($case) => [$case->value => __($case->value)])->toArray())
+                ->options(collect(TaskStatus::cases())->mapWithKeys(fn ($case): array => [$case->value => __($case->value)])->all())
                 ->rules('required')
                 ->displayUsingLabels(),
         ];
@@ -113,6 +116,7 @@ class WorkflowStage extends Resource
      *
      * @return array
      */
+    #[\Override]
     public function cards(NovaRequest $request)
     {
         return [];
@@ -123,6 +127,7 @@ class WorkflowStage extends Resource
      *
      * @return array
      */
+    #[\Override]
     public function filters(NovaRequest $request)
     {
         return [];
@@ -133,6 +138,7 @@ class WorkflowStage extends Resource
      *
      * @return array
      */
+    #[\Override]
     public function lenses(NovaRequest $request)
     {
         return [];
@@ -143,6 +149,7 @@ class WorkflowStage extends Resource
      *
      * @return array
      */
+    #[\Override]
     public function actions(NovaRequest $request)
     {
         return [];

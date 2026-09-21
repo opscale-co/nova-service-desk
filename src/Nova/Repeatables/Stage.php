@@ -26,6 +26,7 @@ class Stage extends Repeatable
      *
      * @return array
      */
+    #[\Override]
     public function fields(NovaRequest $request)
     {
         return [
@@ -46,7 +47,7 @@ class Stage extends Repeatable
                 ->displayUsingLabels(),
 
             Select::make(__('Maps to Status'), 'maps_to_status')
-                ->options(collect(TaskStatus::cases())->mapWithKeys(fn ($case) => [$case->value => __($case->value)])->toArray())
+                ->options(collect(TaskStatus::cases())->mapWithKeys(fn ($case): array => [$case->value => __($case->value)])->all())
                 ->rules('required')
                 ->displayUsingLabels(),
         ];

@@ -7,6 +7,7 @@ namespace Workbench\App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Workbench\App\Resolvers\ServiceResolver;
 
 /**
  * Workbench example model representing a serviceable business unit.
@@ -14,7 +15,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * Departments are the entities that REQUIRE service in the workbench
  * domain — their assets, processes and shared mailboxes can have
  * tickets placed on them. The mapping between this model and the
- * service desk contracts is performed by {@see \Workbench\App\Resolvers\ServiceResolver}
+ * service desk contracts is performed by {@see ServiceResolver}
  * so that the model itself stays free of cross-cutting concerns.
  */
 class Department extends Model

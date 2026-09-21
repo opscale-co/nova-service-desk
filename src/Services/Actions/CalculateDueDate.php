@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Opscale\NovaServiceDesk\Services\Actions;
 
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Date;
 use Opscale\Actions\Action;
 use Opscale\NovaServiceDesk\Models\Account;
 use Opscale\NovaServiceDesk\Models\Task;
@@ -38,31 +39,32 @@ class CalculateDueDate extends Action
         ];
     }
 
-    public function handle(array $attributes = []): array
+    public function outputs(): array
     {
-        $this->fill($attributes);
-        $validatedData = $this->validateAttributes();
+        return [
+            [
+                'name' => 'due_date',
+                'description' => 'The calculated due date for the task',
+                'type' => 'datetime',
+                'rules' => ['nullable'],
+            ],
+        ];
+    }
 
+    public function handle(array $inputs = []): array
+    {
         /** @var Task $task */
-        $task = $validatedData['task'];
+        $task = $inputs['task'];
         $request = $task->request;
 
         if (! $request->account_id) {
-            return [
-                'success' => false,
-                'due_date' => null,
-                'message' => 'Request has no account assigned',
-            ];
+            return $this->fail('Request has no account assigned', ['due_date' => null]);
         }
 
-        $account = Account::find($request->account_id);
+        $account = Account::query()->find($request->account_id);
 
         if (! $account) {
-            return [
-                'success' => false,
-                'due_date' => null,
-                'message' => 'Account not found',
-            ];
+            return $this->fail('Account not found', ['due_date' => null]);
         }
 
         $slaPolicy = $account->policies()
@@ -70,35 +72,24 @@ class CalculateDueDate extends Action
             ->first();
 
         if (! $slaPolicy) {
-            return [
-                'success' => false,
-                'due_date' => null,
-                'message' => 'No SLA policy found for this priority',
-            ];
+            return $this->fail('No SLA policy found for this priority', ['due_date' => null]);
         }
 
         $responseTime = $slaPolicy->max_resolution_time;
 
         if (! $responseTime) {
-            return [
-                'success' => false,
-                'due_date' => null,
-                'message' => 'SLA policy has no response time defined',
-            ];
+            return $this->fail('SLA policy has no response time defined', ['due_date' => null]);
         }
 
         $dueDate = $this->calculateDueDate(
-            Carbon::now(),
+            Date::now(),
             $responseTime,
             $slaPolicy->service_time ?? [],
             $slaPolicy->service_timezone ?? config('app.timezone'),
             $slaPolicy->service_exceptions ?? []
         );
 
-        return [
-            'success' => true,
-            'due_date' => $dueDate,
-        ];
+        return $this->succeed(['due_date' => $dueDate]);
     }
 
     /**
@@ -119,7 +110,7 @@ class CalculateDueDate extends Action
         $exceptionDays = $this->parseExceptions($exceptions);
 
         // If no service time defined, just add the minutes directly
-        if (empty($schedule)) {
+        if ($schedule === []) {
             return $current->addMinutes($remainingMinutes);
         }
 
@@ -143,8 +134,8 @@ class CalculateDueDate extends Action
                 continue;
             }
 
-            $serviceStart = Carbon::parse($dateString.' '.$daySchedule['start_time'], $timezone);
-            $serviceEnd = Carbon::parse($dateString.' '.$daySchedule['end_time'], $timezone);
+            $serviceStart = Date::parse($dateString.' '.$daySchedule['start_time'], $timezone);
+            $serviceEnd = Date::parse($dateString.' '.$daySchedule['end_time'], $timezone);
 
             // If current time is before service start, move to service start
             if ($current->lt($serviceStart)) {
@@ -202,8 +193,8 @@ class CalculateDueDate extends Action
     {
         $exceptionDays = [];
 
-        foreach ($exceptions as $slot) {
-            $fields = $slot['fields'] ?? [];
+        foreach ($exceptions as $exception) {
+            $fields = $exception['fields'] ?? [];
             $day = $fields['day'] ?? null;
 
             if ($day) {

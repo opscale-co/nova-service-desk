@@ -34,13 +34,13 @@ class ToolController extends Controller
             ],
         ];
 
-        Workflow::with('stages')->get()->each(function (Workflow $workflow) use (&$workflows) {
+        Workflow::with('stages')->get()->each(function (Workflow $workflow) use (&$workflows): void {
             $workflows[] = [
                 'slug' => $workflow->slug,
                 'name' => $workflow->name,
                 'description' => $workflow->description,
                 'is_default' => false,
-                'stages' => $workflow->stages->map(fn ($stage) => [
+                'stages' => $workflow->stages->map(fn ($stage): array => [
                     'id' => $stage->id,
                     'name' => $stage->name,
                     'description' => $stage->description,
@@ -60,16 +60,16 @@ class ToolController extends Controller
     {
         $slug = $request->query('workflow', self::DEFAULT_WORKFLOW_SLUG);
 
-        $query = Task::active()->orderByPriority();
+        $query = Task::query()->active()->orderByPriority();
 
         if ($slug === self::DEFAULT_WORKFLOW_SLUG) {
             $query->whereNull('workflow_id');
         } else {
-            $workflow = Workflow::where('slug', $slug)->firstOrFail();
+            $workflow = Workflow::query()->where('slug', $slug)->firstOrFail();
             $query->where('workflow_id', $workflow->id);
         }
 
-        $tasks = $query->get()->map(function (Task $task) {
+        $tasks = $query->get()->map(function (Task $task): array {
             return [
                 'id' => $task->id,
                 'key' => $task->key,
@@ -93,30 +93,30 @@ class ToolController extends Controller
      */
     public function transition(Request $request, string $id): JsonResponse
     {
-        $task = Task::findOrFail($id);
+        $task = Task::query()->findOrFail($id);
 
         $attributes = ['task' => $task];
 
         if ($task->workflow_id) {
-            $request->validate(['stage_id' => 'required|string']);
+            $request->validate(['stage_id' => ['required', 'string']]);
             $attributes['stage_id'] = $request->input('stage_id');
         } else {
-            $request->validate(['status' => 'required|string']);
+            $request->validate(['status' => ['required', 'string']]);
             $attributes['status'] = $request->input('status');
         }
 
         $result = ChangeStatus::run($attributes);
 
-        if (empty($result['success'])) {
+        if ($result->isFail()) {
             return response()->json([
-                'message' => $result['message'] ?? __('Transition failed.'),
+                'message' => $result->message() ?? __('Transition failed.'),
             ], 422);
         }
 
-        $task = $result['task'];
+        $task = $result->data()['task'];
 
         return response()->json([
-            'message' => $result['message'],
+            'message' => $result->data()['message'] ?? __('Status updated successfully'),
             'task' => [
                 'id' => $task->id,
                 'key' => $task->key,
@@ -144,12 +144,12 @@ class ToolController extends Controller
             TaskStatus::Cancelled->value => 'danger',
         ];
 
-        return collect(TaskStatus::cases())->map(fn (TaskStatus $status) => [
-            'id' => $status->value,
-            'name' => __($status->value),
+        return collect(TaskStatus::cases())->map(fn (TaskStatus $taskStatus): array => [
+            'id' => $taskStatus->value,
+            'name' => __($taskStatus->value),
             'description' => null,
-            'color' => $colors[$status->value] ?? 'info',
-            'maps_to_status' => $status->value,
+            'color' => $colors[$taskStatus->value] ?? 'info',
+            'maps_to_status' => $taskStatus->value,
         ])->all();
     }
 }

@@ -37,39 +37,39 @@ class GetTaskSequence extends Action
         ];
     }
 
-    public function handle(array $attributes = []): array
+    public function outputs(): array
     {
-        $this->fill($attributes);
-        $validatedData = $this->validateAttributes();
+        return [
+            [
+                'name' => 'sequence',
+                'description' => 'The next sequential key for the task',
+                'type' => 'string',
+                'rules' => ['required', 'string'],
+            ],
+        ];
+    }
 
-        $subcategory = Subcategory::find($validatedData['subcategory_id']);
+    public function handle(array $inputs = []): array
+    {
+        $subcategory = Subcategory::query()->find($inputs['subcategory_id']);
 
         if (! $subcategory) {
-            return [
-                'success' => false,
-                'sequence' => null,
-            ];
+            return $this->fail('Subcategory not found', ['sequence' => null]);
         }
 
         $identifier = $subcategory->key;
 
         if (! $identifier) {
-            return [
-                'success' => false,
-                'sequence' => null,
-            ];
+            return $this->fail('Subcategory has no identifier', ['sequence' => null]);
         }
 
-        $lastTask = Task::whereHas('request', fn ($query) => $query->where('subcategory_id', $subcategory->id))
+        $lastTask = Task::query()->whereHas('request', fn ($query) => $query->where('subcategory_id', $subcategory->id))
             ->orderByDesc('key')
             ->first();
         $lastNumber = $lastTask ? (int) substr($lastTask->key, strrpos($lastTask->key, '-') + 1) : 0;
         $correlative = str_pad((string) ($lastNumber + 1), 6, '0', STR_PAD_LEFT);
         $sequence = $identifier.'-'.$correlative;
 
-        return [
-            'success' => true,
-            'sequence' => $sequence,
-        ];
+        return $this->succeed(['sequence' => $sequence]);
     }
 }

@@ -8,7 +8,7 @@ trait RequestRepository
 {
     public static function bootRequestRepository(): void
     {
-        static::creating(function ($request) {
+        static::creating(function ($request): void {
             $request->tracking_code = static::generateTrackingCode();
         });
     }

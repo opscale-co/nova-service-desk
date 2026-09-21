@@ -15,6 +15,7 @@ class TimeSlot extends Repeatable
      *
      * @return array
      */
+    #[\Override]
     public function fields(NovaRequest $request)
     {
         return [

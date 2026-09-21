@@ -13,7 +13,8 @@ use Opscale\Validations\Validatable;
 
 class WorkflowStage extends Model
 {
-    use HasUlids, Validatable;
+    use HasUlids;
+    use Validatable;
 
     public static array $validationRules = [
         'workflow_id' => 'required',
