@@ -2,6 +2,23 @@
 
 All notable changes to opscale-co/nova-api will be documented in this file.
 
+## 2.0.0 (2026-11-07)
+
+* feat(laravel): require Laravel 13, drop Laravel 11/12 ([5234934](https://github.com/opscale-co/nova-service-desk/commit/5234934))
+* chore(deps): bump nova-comments to ^1.1 ([ad2d317](https://github.com/opscale-co/nova-service-desk/commit/ad2d317))
+* chore(deps): upgrade to PHP 8.3 toolchain and modernize codebase ([08791da](https://github.com/opscale-co/nova-service-desk/commit/08791da))
+
+
+### BREAKING CHANGE
+
+* requires Laravel 13 (illuminate/* ^13.0, laravel/nova
+^5.10, orchestra/testbench-dusk ^11.0). Drops support for Laravel 11 and
+12. Sibling packages bumped to published majors: actions ^5.0,
+nova-comments ^2.0, nova-dynamic-resources ^2.0, nova-package-tools ^2.0,
+nova-toolbar-actions ^2.0, validations ^2.0.
+
+Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>
+
 ## 1.2.0 (2026-06-14)
 
 * ci(workflows): bump php to 8.3 ([e8ac1cb](https://github.com/opscale-co/nova-service-desk/commit/e8ac1cb))
