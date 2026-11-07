@@ -25,12 +25,12 @@
   ],
   "require": {
     "php": "^8.3",
-    "opscale-co/actions": "^3.0",
-    "opscale-co/nova-comments": "^1.2",
-    "opscale-co/nova-dynamic-resources": "^1.11",
-    "opscale-co/nova-package-tools": "^1.1",
-    "opscale-co/nova-toolbar-actions": "^1.0",
-    "opscale-co/validations": "^1.0"
+    "opscale-co/actions": "^5.0",
+    "opscale-co/nova-comments": "^2.0",
+    "opscale-co/nova-dynamic-resources": "^2.0",
+    "opscale-co/nova-package-tools": "^2.0",
+    "opscale-co/nova-toolbar-actions": "^2.0",
+    "opscale-co/validations": "^2.0"
   },
   "autoload": {
     "psr-4": {
@@ -67,7 +67,7 @@
     "laravel/nova-devtool": "^1.10",
     "mockery/mockery": "^1.6",
     "opscale-co/strict-rules": "^1.3",
-    "orchestra/testbench-dusk": "^10.11",
+    "orchestra/testbench-dusk": "^11.0",
     "pestphp/pest": "^4.7",
     "pestphp/pest-plugin-laravel": "^4.1",
     "phpunit/phpunit": "^12.5",
